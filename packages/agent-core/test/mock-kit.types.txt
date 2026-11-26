@@ -1,0 +1,11 @@
+import { MockGPT, ResponseDescription, type GenerationInput, type Generator, type Generated, type CallRecord } from '@jangts/agent-core/mock';
+import { createMockServer, createMockHandler, type ServerOptions, type HandlerOptions } from '@jangts/agent-core/mock/node';
+import { sources, isPublicAddress, type WebOptions, type LoadedPage, type WebProfile } from '@jangts/agent-core/mock/web';
+const mock = new MockGPT({ rules: [{ prompt: 'hello', generator: 'world' }] });
+const options: ServerOptions = { mock, maxBodyBytes: 1024 };
+const server = createMockServer(options);
+const handler = createMockHandler(options);
+const web: WebOptions = { url: 'https://example.com' };
+const input: GenerationInput = { model: 'demo', messages: [{ role: 'user', content: 'hello' }] };
+const result: Promise<Generated> = mock.generate(input);
+void [server, handler, web, result, ResponseDescription, sources, isPublicAddress];

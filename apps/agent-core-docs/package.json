@@ -1,0 +1,27 @@
+{
+  "name": "@jangts/agent-core-docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Static reference website for Jangts Agent Core",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "vitepress preview . --host 127.0.0.1",
+    "check": "node scripts/check.mjs",
+    "check:dev": "node scripts/check-dev.mjs",
+    "check:reload": "node scripts/check-reload.mjs --full",
+    "deploy": "node scripts/deploy.mjs"
+  },
+  "devDependencies": {
+    "mermaid": "11.17.2",
+    "typescript": "~6.0.2",
+    "vitepress": "1.6.4",
+    "vitepress-plugin-mermaid": "2.0.17",
+    "jsdom": "26.1.0",
+    "vue": "^3.5.45"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "scope": "N01-N20; all published entries are inventoried separately",
+  "runtimeUse": false,
+  "compatibility": {
+    "legacyAliases": "deprecated; same implementation; retained throughout 1.x if shipped in 1.0",
+    "preparedTypeException": "0.9 PreparedModelInteraction -> PreparedModelSelection; 0.9 PreparedModelTransport -> PreparedModelInteraction",
+    "persistedFormats": "unchanged; no migration writes or identity regeneration",
+    "contextInputException": "Core-produced ToolExecutionContext/WorkflowContext/CoreStep reporting contexts guarantee createStepRecorder; manually constructed 0.9 inputs/test doubles must bind it explicitly. Legacy NodeReportingContext itself remains unchanged."
+  },
+  "concepts": [
+    {
+      "id": "N01",
+      "term": "Model interaction / 模型交互",
+      "decision": "change",
+      "owner": "T1",
+      "reason": "模型请求与响应适配不是HTTP/SSE传输；保留旧输入桥接。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "ModelInteractionDefinition"
+        }
+      ]
+    },
+    {
+      "id": "N02",
+      "term": "Prepared selection and interaction / 选取与交互准备",
+      "decision": "change",
+      "owner": "T1",
+      "reason": "两种collector结果职责独立。原PreparedModelInteraction单选类型改为PreparedModelSelection，是明确的0.9类型迁移例外；最终准备合同采用准确的PreparedModelInteraction，不为旧同名妥协长期名称。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "PreparedModelSelection"
+        },
+        {
+          "entry": "./types",
+          "name": "PreparedModelInteraction"
+        }
+      ]
+    },
+    {
+      "id": "N03",
+      "term": "Interaction protocol / 消息交互协议",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "协议服务消息家族，Command是内部声明，不将query/presentation/receipt强称执行命令。",
+      "publicSymbols": [
+        {
+          "entry": "./kits/interaction",
+          "name": "InteractionProtocol"
+        }
+      ]
+    },
+    {
+      "id": "N04",
+      "term": "Domain tool / 领域工具",
+      "decision": "change",
+      "owner": "T2",
+      "reason": "模型可选领域操作与执行工具有独立ID和关系，不是独立Goal实体。",
+      "publicSymbols": [
+        {
+          "entry": "./kits/domains",
+          "name": "DomainToolRegistry"
+        }
+      ]
+    },
+    {
+      "id": "N05",
+      "term": "Intent selection / 意图识别工具视图",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "asIntent和intent投影已注册工具，不能命名为动态发现。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "AsIntent"
+        }
+      ]
+    },
+    {
+      "id": "N06",
+      "term": "Reported step / 自述步骤",
+      "decision": "change",
+      "owner": "T3",
+      "reason": "reported是证据性质，不限定App生产者，也不代表执行子工作流。",
+      "publicSymbols": [
+        {
+          "entry": "./diagnostics",
+          "name": "ReportedStepRecorder"
+        }
+      ]
+    },
+    {
+      "id": "N07",
+      "term": "Workflow run trace / 工作流运行轨迹",
+      "decision": "change",
+      "owner": "T3",
+      "reason": "图是静态拓扑，轨迹保留多次访问及覆盖度，非恢复日志或OTel兼容。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "WorkflowRunTrace"
+        }
+      ]
+    },
+    {
+      "id": "N08",
+      "term": "Branch versioning / 分支版本管理",
+      "decision": "change",
+      "owner": "T3",
+      "reason": "create/fork/merge/promote是可变管理服务；含活动指针/CAS的记录称Record，非仅History或VCS。 BranchVersions只是同一服务工厂的便捷导入命名空间，不是另一组运行实例。",
+      "publicSymbols": [
+        {
+          "entry": "./kits/branch-versioning",
+          "name": "BranchVersioning"
+        },
+        {
+          "entry": "./kits/branch-versioning",
+          "name": "BranchVersionRecord"
+        },
+        {
+          "entry": "./kits/branch-versioning",
+          "name": "BranchVersions"
+        }
+      ]
+    },
+    {
+      "id": "N09",
+      "term": "Context journal / 上下文调用事实记录",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "只有选定上下文事实，生命周期私有状态和托管事件不全量记录，不改名InvocationJournal。",
+      "publicSymbols": [
+        {
+          "entry": "./journal",
+          "name": "ContextJournal"
+        }
+      ]
+    },
+    {
+      "id": "N10",
+      "term": "Lifecycle tool / 生命周期工具",
+      "decision": "change",
+      "owner": "T2",
+      "reason": "Kit的贡献与阶段hook增加Tool限定，基础ExecutableTool合同不变。",
+      "publicSymbols": [
+        {
+          "entry": "./kits/tools",
+          "name": "LifecycleTool"
+        },
+        {
+          "entry": "./kits/tools",
+          "name": "ToolLifecycleHooks"
+        }
+      ]
+    },
+    {
+      "id": "N11",
+      "term": "Domain modes and planning action / 领域模式与计划动作",
+      "decision": "change",
+      "owner": "T2",
+      "reason": "scope/target是模式，planningAction是动作；preparedHandoff保留opaque App标记，delegates不暗示Agent。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "DomainTool"
+        }
+      ]
+    },
+    {
+      "id": "N12",
+      "term": "Model provider / 模型提供者",
+      "decision": "change",
+      "owner": "T1",
+      "reason": "共同入口是可选能力组合；ChatProvider保留生成专用抽象，纯生命周期不伪造stream。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "ModelProvider"
+        }
+      ]
+    },
+    {
+      "id": "N13",
+      "term": "Tool proposal and execution / 工具提案与执行",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "函数专用wire仍叫Function；Proposal/Selection/Invocation和远端托管事件保持授权与回执差异。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "ToolProposal"
+        },
+        {
+          "entry": "./types",
+          "name": "NativeFunctionCall"
+        }
+      ]
+    },
+    {
+      "id": "N14",
+      "term": "Context trust / 上下文信任分类",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "参与system角色限制和结构审计，不是来源标签，不改变安全分类。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "ContextTrust"
+        }
+      ]
+    },
+    {
+      "id": "N15",
+      "term": "Reflection / 证据复盘",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "实际模型分析证据并给observed/hypothesis/recommendation，保留反思评估概念但不宣称自动学习或策略发布。",
+      "publicSymbols": [
+        {
+          "entry": "./kits/reflection",
+          "name": "defineReflection"
+        }
+      ]
+    },
+    {
+      "id": "N16",
+      "term": "Delivery pipeline / 交付管线",
+      "decision": "change",
+      "owner": "T4",
+      "reason": "有序交付阶段与早结束是pipeline，不是通用工作流图或归一化管线。",
+      "publicSymbols": [
+        {
+          "entry": "./kits",
+          "name": "DeliveryPipeline"
+        }
+      ]
+    },
+    {
+      "id": "N17",
+      "term": "Definitions and registration / 定义与注册",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "define/create/register/bind按真实生命周期；安装目录有顺序与非回滚语义，不强制声明层。",
+      "publicSymbols": [
+        {
+          "entry": "./support",
+          "name": "defineRegistrationCatalog"
+        }
+      ]
+    },
+    {
+      "id": "N18",
+      "term": "Agent snapshot / Agent数据快照",
+      "decision": "change",
+      "owner": "T3",
+      "reason": "宿主数据和分支身份快照不恢复执行游标，snapshot/export/restore整族一致，DurableCheckpoint不改。",
+      "publicSymbols": [
+        {
+          "entry": "./engine",
+          "name": "AgentSnapshot"
+        }
+      ]
+    },
+    {
+      "id": "N19",
+      "term": "Model lifecycle / 模型生命周期",
+      "decision": "change",
+      "owner": "T1",
+      "reason": "Lifecycle/Operation泛名限定模型域，不与通用OperationContext或ToolLifecycle混淆。",
+      "publicSymbols": [
+        {
+          "entry": "./types",
+          "name": "ModelLifecycleContext"
+        },
+        {
+          "entry": "./types",
+          "name": "ModelOperationStatus"
+        }
+      ]
+    },
+    {
+      "id": "N20",
+      "term": "Review and acceptance / 评审与接纳",
+      "decision": "retain",
+      "owner": "T4",
+      "reason": "材料/字段冲突、认知分歧、覆盖、裁决答复、真实接纳分别定义。Waiting resolved不是争议解决。",
+      "publicSymbols": [
+        {
+          "entry": "./kits/result-review",
+          "name": "ResultReviewScope"
+        }
+      ]
+    }
+  ]
+}

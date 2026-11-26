@@ -1,0 +1,7 @@
+import { ModelRunner, Support, type ModelResult, type ModelTransportDefinition } from '@jangts/agent-core';
+const json = Support.createJsonTransport({ id: 'summary', outputSchema: { jsonSchema: {}, parse(value: unknown) { return { summary: String(value) }; } } });
+const literal: 'summary' = json.id;
+const contract: ModelTransportDefinition<{ summary: string }> = json;
+const runner = new ModelRunner({ provider: { async *stream() { yield '{"summary":"ready"}'; } }, transports: [json] });
+const result: Promise<ModelResult<{ summary: string }>> = runner.invoke({ input: 'x', transport: 'summary' });
+void literal; void contract; void result;

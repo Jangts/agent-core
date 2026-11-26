@@ -1,0 +1,72 @@
+{
+  "name": "@jangts/agent-core",
+  "version": "0.3.0",
+  "filename": "jangts-agent-core-0.3.0.tgz",
+  "size": 1133863,
+  "unpackedSize": 3645195,
+  "shasum": "eaadf3cc6ca510cf4ffc8ea5f7c8aaf009720942",
+  "integrity": "sha512-BNWm/SseSaH24qV5bwiM9MtJ/np241Lb0VpEmh3oNoqLVUBUFBt9mLOSyEoFWO9/3/wm3cnIKLj0eL1WJieJwA==",
+  "sha256": "e210caacff039d50dd4d7971fc5ec2964f23e18e53387737ccbb1245860fa38c",
+  "tests": {
+    "sdk": {
+      "passed": 799,
+      "failed": 0
+    },
+    "banker": {
+      "passed": 23,
+      "failed": 0
+    },
+    "website_agent": {
+      "passed": 24,
+      "failed": 0
+    },
+    "typescript_consumers": "passed",
+    "workspace": "passed",
+    "prettier": "passed",
+    "packed_artifact": "passed",
+    "documentation_website": {
+      "build": "passed",
+      "check": "passed",
+      "sourceSha256": "0d04db0a85ebcd5d72ea94f9e306a8fa2c58dd73e6f3a0c3763730a8e95eafa3"
+    },
+    "documentation_recipes": {
+      "strict_typecheck": 4,
+      "offline_execution": 4
+    },
+    "root_build_packages": "passed"
+  },
+  "unchangedRuntime": {
+    "baseVersion": "0.2.5",
+    "checkedCompiledFiles": 619,
+    "changedOrMissing": []
+  },
+  "publication": {
+    "status": "unpublished",
+    "registry": "https://registry.npmjs.org",
+    "tag": "latest",
+    "publishReceipt": "npm publish exited 0; returned integrity and shasum match the approved frozen tarball.",
+    "registryVerifiedAtPublish": {
+      "version": "0.3.0",
+      "dist.integrity": "sha512-BNWm/SseSaH24qV5bwiM9MtJ/np241Lb0VpEmh3oNoqLVUBUFBt9mLOSyEoFWO9/3/wm3cnIKLj0eL1WJieJwA==",
+      "dist.shasum": "eaadf3cc6ca510cf4ffc8ea5f7c8aaf009720942",
+      "dist-tags": {
+        "latest": "0.3.0"
+      }
+    }
+  },
+  "withdrawal": {
+    "requested": true,
+    "latestRestoredTo": "0.2.5",
+    "unpublishStatus": "succeeded",
+    "initialAttempt": "npm E403: granular bypass-2FA token cannot unpublish",
+    "authentication": "Temporary official web login plus operation-specific authentication",
+    "unpublishReceipt": "npm unpublish @jangts/agent-core@0.3.0 exited 0; returned - @jangts/agent-core@0.3.0",
+    "registryVerifiedAfterWithdrawal": {
+      "versions": ["0.0.0-stage", "0.1.0", "0.1.1", "0.2.0", "0.2.1", "0.2.5"],
+      "dist-tags": {
+        "latest": "0.2.5"
+      }
+    },
+    "temporarySession": "logged out and removed"
+  }
+}

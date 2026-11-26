@@ -1,0 +1,174 @@
+[
+  {
+    "id": "workflow-design",
+    "title": {
+      "zh": "工作流设计",
+      "en": "Workflow design"
+    },
+    "articles": [
+      {
+        "id": "nodes-and-tools",
+        "title": {
+          "zh": "节点和工具怎样划分职责",
+          "en": "Where workflow nodes and tools belong"
+        },
+        "skill": "agent-core-workflow-design"
+      },
+      {
+        "id": "one-phase-one-declaration",
+        "title": {
+          "zh": "从能力目录准备一次模型决策",
+          "en": "Prepare a model decision from one capability catalog"
+        },
+        "skill": "agent-core-workflow-design"
+      },
+      {
+        "id": "compose-bounded-subtasks",
+        "title": {
+          "zh": "共享预算下的子任务组合",
+          "en": "Compose subtasks under a shared budget"
+        },
+        "skill": "agent-core-workflow-design"
+      },
+      {
+        "id": "version-and-promote-agent-state",
+        "title": {
+          "zh": "保存分支版本并显式晋升",
+          "en": "Save branch versions and promote them explicitly"
+        },
+        "skill": "agent-core-workflow-change-review"
+      }
+    ]
+  },
+  {
+    "id": "context-and-replies",
+    "title": {
+      "zh": "上下文与答复",
+      "en": "Context and replies"
+    },
+    "articles": [
+      {
+        "id": "prompts-and-context",
+        "title": {
+          "zh": "按任务阶段构造提示与上下文",
+          "en": "Build prompts and context by task stage"
+        },
+        "skill": "agent-core-workflow-design"
+      },
+      {
+        "id": "compression-or-partial",
+        "title": {
+          "zh": "控制输入长度与交付范围",
+          "en": "Manage context length and delivery scope"
+        },
+        "skill": "agent-core-budget-optimization"
+      },
+      {
+        "id": "personal-memory-snapshots",
+        "title": {
+          "zh": "用证据维护个人记忆快照",
+          "en": "Maintain evidence-linked personal memory"
+        },
+        "skill": "agent-core-resilience-review"
+      },
+      {
+        "id": "reply-organization",
+        "title": {
+          "zh": "组织答复的事实、格式和参考",
+          "en": "Organize facts, formats, and references in replies"
+        },
+        "skill": "agent-core-reply-development"
+      }
+    ]
+  },
+  {
+    "id": "execution-and-recovery",
+    "title": {
+      "zh": "执行与恢复",
+      "en": "Execution and recovery"
+    },
+    "articles": [
+      {
+        "id": "reasonable-dynamic-budgets",
+        "title": {
+          "zh": "按剩余工作调整调用预算",
+          "en": "Adjust call budgets around remaining work"
+        },
+        "skill": "agent-core-budget-optimization"
+      },
+      {
+        "id": "reliable-request-recovery",
+        "title": {
+          "zh": "请求失败后交付已经确认的结果",
+          "en": "Deliver confirmed results after a request failure"
+        },
+        "skill": "agent-core-resilience-review"
+      },
+      {
+        "id": "targeted-completion-repair",
+        "title": {
+          "zh": "让完成检查触发定向修复",
+          "en": "Route completion failures to targeted repair"
+        },
+        "skill": "agent-core-resilience-review"
+      },
+      {
+        "id": "evidence-and-operation-receipts",
+        "title": {
+          "zh": "复用证据并核对操作回执",
+          "en": "Reuse evidence and reconcile operation receipts"
+        },
+        "skill": "agent-core-workflow-change-review"
+      },
+      {
+        "id": "approval-and-durable-recovery",
+        "title": {
+          "zh": "跨进程等待审批与恢复操作",
+          "en": "Wait for approval and recover operations across processes"
+        },
+        "skill": "agent-core-resilience-review"
+      },
+      {
+        "id": "review-and-accept-results",
+        "title": {
+          "zh": "评审分歧并接受现有成果",
+          "en": "Review disagreements and accept an existing result"
+        },
+        "skill": "agent-core-workflow-change-review"
+      }
+    ]
+  },
+  {
+    "id": "integration-and-verification",
+    "title": {
+      "zh": "接入与验证",
+      "en": "Integration and verification"
+    },
+    "articles": [
+      {
+        "id": "choose-model-lifecycles",
+        "title": {
+          "zh": "选择模型协议与调用生命周期",
+          "en": "Choose a model protocol and call lifecycle"
+        },
+        "skill": "agent-core-workflow-design"
+      },
+      {
+        "id": "observe-real-execution",
+        "title": {
+          "zh": "用运行记录定位第一处错误决定",
+          "en": "Find the first wrong decision in a run trace"
+        },
+        "skill": "agent-core-workflow-inspection"
+      },
+      {
+        "id": "test-completion-under-faults",
+        "title": {
+          "zh": "用故障验证任务如何收尾",
+          "en": "Test how a task ends under faults"
+        },
+        "skill": "agent-core-app-testing"
+      }
+    ]
+  }
+]

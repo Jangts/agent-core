@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+.local/
+.tmp/
+node_modules/
+dist/
+*.tsbuildinfo
+
+# VitePress caches and temporary config transforms
+**/.vitepress/cache/
+**/.vitepress/dist/
+**/.vitepress/.temp/
+**/config.mts.timestamp-*.mjs

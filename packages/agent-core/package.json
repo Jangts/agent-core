@@ -1,0 +1,375 @@
+{
+  "name": "@jangts/agent-core",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "license": "Apache-2.0",
+  "description": "Agent runtime with declarative workflows, authorized tools, dynamic request budgets, reliable recovery, and developer articles and inspection tools",
+  "homepage": "https://agent-core-docs.pages.jangts.cafe/",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "development/docs",
+    "development/skills",
+    "development/scripts/workflow-inspector",
+    "development/scripts/workflow-diff",
+    "development/scripts/workflow-scenarios",
+    "development/examples/workflow-inspection.mjs",
+    "development/examples/workflow-scenarios.mjs",
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE",
+    "development/articles",
+    "development/examples/harness-composition.mjs",
+    "development/examples/harness-composition.md",
+    "development/examples/harness-composition.en.md",
+    "development/examples/harness-parallel.mjs",
+    "development/examples/harness-parallel.md",
+    "development/examples/harness-parallel.en.md",
+    "development/examples/harness-durable.mjs",
+    "development/examples/harness-durable.md",
+    "development/examples/harness-durable.en.md",
+    "development/examples/harness-handler-comparison.mjs",
+    "development/examples/harness-handler-comparison.md",
+    "development/examples/harness-handler-comparison.en.md",
+    "development/examples/model-protocols.mjs",
+    "development/examples/model-lifecycles.mjs",
+    "development/examples/collaboration-probe.mjs"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./engine": {
+      "types": "./dist/esm/execution/engine.d.ts",
+      "import": "./dist/esm/execution/engine.js",
+      "require": "./dist/cjs/execution/engine.js"
+    },
+    "./model": {
+      "types": "./dist/esm/model/runner.d.ts",
+      "import": "./dist/esm/model/runner.js",
+      "require": "./dist/cjs/model/runner.js"
+    },
+    "./types": {
+      "types": "./dist/esm/types.d.ts",
+      "import": "./dist/esm/types.js",
+      "require": "./dist/cjs/types.js"
+    },
+    "./structs": {
+      "types": "./dist/esm/structs/index.d.ts",
+      "import": "./dist/esm/structs/index.js",
+      "require": "./dist/cjs/structs/index.js"
+    },
+    "./context": {
+      "types": "./dist/esm/context/index.d.ts",
+      "import": "./dist/esm/context/index.js",
+      "require": "./dist/cjs/context/index.js"
+    },
+    "./journal": {
+      "types": "./dist/esm/context/journal.d.ts",
+      "import": "./dist/esm/context/journal.js",
+      "require": "./dist/cjs/context/journal.js"
+    },
+    "./events": {
+      "types": "./dist/esm/kits/presentation/events.d.ts",
+      "import": "./dist/esm/kits/presentation/events.js",
+      "require": "./dist/cjs/kits/presentation/events.js"
+    },
+    "./errors": {
+      "types": "./dist/esm/structs/errors.d.ts",
+      "import": "./dist/esm/structs/errors.js",
+      "require": "./dist/cjs/structs/errors.js"
+    },
+    "./tools": {
+      "types": "./dist/esm/capabilities/tools.d.ts",
+      "import": "./dist/esm/capabilities/tools.js",
+      "require": "./dist/cjs/capabilities/tools.js"
+    },
+    "./protocols": {
+      "types": "./dist/esm/utils/protocol-registry.d.ts",
+      "import": "./dist/esm/utils/protocol-registry.js",
+      "require": "./dist/cjs/utils/protocol-registry.js"
+    },
+    "./sse": {
+      "types": "./dist/esm/support/transport/sse.d.ts",
+      "import": "./dist/esm/support/transport/sse.js",
+      "require": "./dist/cjs/support/transport/sse.js"
+    },
+    "./json-transport": {
+      "types": "./dist/esm/support/transport/json.d.ts",
+      "import": "./dist/esm/support/transport/json.js",
+      "require": "./dist/cjs/support/transport/json.js"
+    },
+    "./diagnostics": {
+      "types": "./dist/esm/diagnostics/index.d.ts",
+      "import": "./dist/esm/diagnostics/index.js",
+      "require": "./dist/cjs/diagnostics/index.js"
+    },
+    "./kits/knowledge": {
+      "types": "./dist/esm/kits/knowledge/index.d.ts",
+      "import": "./dist/esm/kits/knowledge/index.js",
+      "require": "./dist/cjs/kits/knowledge/index.js"
+    },
+    "./kits/presentation": {
+      "types": "./dist/esm/kits/presentation/index.d.ts",
+      "import": "./dist/esm/kits/presentation/index.js",
+      "require": "./dist/cjs/kits/presentation/index.js"
+    },
+    "./kits/answering": {
+      "types": "./dist/esm/kits/answering/index.d.ts",
+      "import": "./dist/esm/kits/answering/index.js",
+      "require": "./dist/cjs/kits/answering/index.js"
+    },
+    "./support": {
+      "types": "./dist/esm/support/index.d.ts",
+      "import": "./dist/esm/support/index.js",
+      "require": "./dist/cjs/support/index.js"
+    },
+    "./skills": {
+      "types": "./dist/esm/skills/index.d.ts",
+      "import": "./dist/esm/skills/index.js",
+      "require": "./dist/cjs/skills/index.js"
+    },
+    "./kits/normalization": {
+      "types": "./dist/esm/kits/normalization.d.ts",
+      "import": "./dist/esm/kits/normalization.js",
+      "require": "./dist/cjs/kits/normalization.js"
+    },
+    "./kits/delivery": {
+      "types": "./dist/esm/kits/delivery.d.ts",
+      "import": "./dist/esm/kits/delivery.js",
+      "require": "./dist/cjs/kits/delivery.js"
+    },
+    "./kits/projection": {
+      "types": "./dist/esm/kits/projection.d.ts",
+      "import": "./dist/esm/kits/projection.js",
+      "require": "./dist/cjs/kits/projection.js"
+    },
+    "./kits/aggregation": {
+      "types": "./dist/esm/kits/aggregation.d.ts",
+      "import": "./dist/esm/kits/aggregation.js",
+      "require": "./dist/cjs/kits/aggregation.js"
+    },
+    "./kits/retrieval": {
+      "types": "./dist/esm/kits/retrieval.d.ts",
+      "import": "./dist/esm/kits/retrieval.js",
+      "require": "./dist/cjs/kits/retrieval.js"
+    },
+    "./kits/evidence": {
+      "types": "./dist/esm/kits/evidence.d.ts",
+      "import": "./dist/esm/kits/evidence.js",
+      "require": "./dist/cjs/kits/evidence.js"
+    },
+    "./kits/policies": {
+      "types": "./dist/esm/kits/policies.d.ts",
+      "import": "./dist/esm/kits/policies.js",
+      "require": "./dist/cjs/kits/policies.js"
+    },
+    "./kits/candidates": {
+      "types": "./dist/esm/kits/candidates.d.ts",
+      "import": "./dist/esm/kits/candidates.js",
+      "require": "./dist/cjs/kits/candidates.js"
+    },
+    "./kits/text-skills": {
+      "types": "./dist/esm/kits/text-skills.d.ts",
+      "import": "./dist/esm/kits/text-skills.js",
+      "require": "./dist/cjs/kits/text-skills.js"
+    },
+    "./kits/interaction": {
+      "types": "./dist/esm/kits/interaction/index.d.ts",
+      "import": "./dist/esm/kits/interaction/index.js",
+      "require": "./dist/cjs/kits/interaction/index.js"
+    },
+    "./kits/domains": {
+      "types": "./dist/esm/kits/domains/index.d.ts",
+      "import": "./dist/esm/kits/domains/index.js",
+      "require": "./dist/cjs/kits/domains/index.js"
+    },
+    "./kits/tools": {
+      "types": "./dist/esm/kits/tools.d.ts",
+      "import": "./dist/esm/kits/tools.js",
+      "require": "./dist/cjs/kits/tools.js"
+    },
+    "./support/context": {
+      "types": "./dist/esm/support/context/index.d.ts",
+      "import": "./dist/esm/support/context/index.js",
+      "require": "./dist/cjs/support/context/index.js"
+    },
+    "./support/model": {
+      "types": "./dist/esm/support/model/index.d.ts",
+      "import": "./dist/esm/support/model/index.js",
+      "require": "./dist/cjs/support/model/index.js"
+    },
+    "./kits": {
+      "types": "./dist/esm/kits/index.d.ts",
+      "import": "./dist/esm/kits/index.js",
+      "require": "./dist/cjs/kits/index.js"
+    },
+    "./mock": {
+      "types": "./dist/esm/mock.d.ts",
+      "import": "./dist/esm/mock.js",
+      "require": "./dist/cjs/mock.js"
+    },
+    "./kits/search": {
+      "types": "./dist/esm/kits/search.d.ts",
+      "import": "./dist/esm/kits/search.js",
+      "require": "./dist/cjs/kits/search.js"
+    },
+    "./kits/text-blocks": {
+      "types": "./dist/esm/kits/text-blocks.d.ts",
+      "import": "./dist/esm/kits/text-blocks.js",
+      "require": "./dist/cjs/kits/text-blocks.js"
+    },
+    "./kits/inference": {
+      "types": "./dist/esm/kits/inference.d.ts",
+      "import": "./dist/esm/kits/inference.js",
+      "require": "./dist/cjs/kits/inference.js"
+    },
+    "./kits/vector-search": {
+      "types": "./dist/esm/kits/vector-search.d.ts",
+      "import": "./dist/esm/kits/vector-search.js",
+      "require": "./dist/cjs/kits/vector-search.js"
+    },
+    "./kits/rank-fusion": {
+      "types": "./dist/esm/kits/rank-fusion.d.ts",
+      "import": "./dist/esm/kits/rank-fusion.js",
+      "require": "./dist/cjs/kits/rank-fusion.js"
+    },
+    "./kits/artifacts": {
+      "types": "./dist/esm/kits/artifacts.d.ts",
+      "import": "./dist/esm/kits/artifacts.js",
+      "require": "./dist/cjs/kits/artifacts.js"
+    },
+    "./kits/durable": {
+      "types": "./dist/esm/kits/durable.d.ts",
+      "import": "./dist/esm/kits/durable.js",
+      "require": "./dist/cjs/kits/durable.js"
+    },
+    "./kits/result-review": {
+      "types": "./dist/esm/kits/result-review.d.ts",
+      "import": "./dist/esm/kits/result-review.js",
+      "require": "./dist/cjs/kits/result-review.js"
+    },
+    "./kits/review-choice": {
+      "types": "./dist/esm/kits/review-choice.d.ts",
+      "import": "./dist/esm/kits/review-choice.js",
+      "require": "./dist/cjs/kits/review-choice.js"
+    },
+    "./kits/review-decision": {
+      "types": "./dist/esm/kits/review-decision.d.ts",
+      "import": "./dist/esm/kits/review-decision.js",
+      "require": "./dist/cjs/kits/review-decision.js"
+    },
+    "./kits/waiting": {
+      "types": "./dist/esm/kits/waiting.d.ts",
+      "import": "./dist/esm/kits/waiting.js",
+      "require": "./dist/cjs/kits/waiting.js"
+    },
+    "./kits/family": {
+      "types": "./dist/esm/kits/family.d.ts",
+      "import": "./dist/esm/kits/family.js",
+      "require": "./dist/cjs/kits/family.js"
+    },
+    "./kits/reflection": {
+      "types": "./dist/esm/kits/reflection.d.ts",
+      "import": "./dist/esm/kits/reflection.js",
+      "require": "./dist/cjs/kits/reflection.js"
+    },
+    "./mock/node": {
+      "types": "./dist/esm/mock/node.d.ts",
+      "import": "./dist/esm/mock/node.js",
+      "require": "./dist/cjs/mock/node.js"
+    },
+    "./mock/web": {
+      "types": "./dist/esm/mock/web.d.ts",
+      "import": "./dist/esm/mock/web.js",
+      "require": "./dist/cjs/mock/web.js"
+    },
+    "./support/decorators": {
+      "types": "./dist/esm/support/decorators/index.d.ts",
+      "import": "./dist/esm/support/decorators/index.js",
+      "require": "./dist/cjs/support/decorators/index.js"
+    },
+    "./kits/completion": {
+      "types": "./dist/esm/kits/completion.d.ts",
+      "import": "./dist/esm/kits/completion.js",
+      "require": "./dist/cjs/kits/completion.js"
+    },
+    "./kits/branch-versioning": {
+      "types": "./dist/esm/kits/family.d.ts",
+      "import": "./dist/esm/kits/family.js",
+      "require": "./dist/cjs/kits/family.js"
+    },
+    "./kits/memory": {
+      "types": "./dist/esm/kits/memory.d.ts",
+      "import": "./dist/esm/kits/memory.js",
+      "require": "./dist/cjs/kits/memory.js"
+    }
+  },
+  "scripts": {
+    "build": "node scripts/clean.mjs && npm run build:dev",
+    "build:dev": "node scripts/sync-articles.mjs && node scripts/compile-skills.mjs && tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/finalize.mjs",
+    "test": "node --test test/*.test.mjs",
+    "docs:api": "node scripts/api-reference.mjs",
+    "check:concepts": "node scripts/check-concepts.mjs",
+    "test:agent-audit": "node development/scripts/audit/audit-libraries.mjs"
+  },
+  "dependencies": {
+    "@jangts/streaming": "^0.1.2",
+    "minisearch": "^7.2.0"
+  },
+  "peerDependencies": {
+    "@jangts/mock-gpt": "0.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@jangts/mock-gpt": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@jangts/mock-gpt": "0.3.0",
+    "jsdom": "26.1.0",
+    "typescript": "~6.0.2",
+    "esbuild": "0.28.2",
+    "@bcoe/v8-coverage": "^1.0.2",
+    "c8": "^12.0.0"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "ai-agent",
+    "ai-agents",
+    "llm",
+    "agent-framework",
+    "agent-runtime",
+    "agent-skills",
+    "workflow",
+    "tool-calling",
+    "function-calling",
+    "chat-completions",
+    "openai-compatible",
+    "context-management",
+    "streaming",
+    "decorators",
+    "typescript-decorators",
+    "typescript",
+    "nodejs",
+    "browser",
+    "error-recovery",
+    "context-compression",
+    "responses-api",
+    "anthropic",
+    "gemini",
+    "batch-inference",
+    "realtime"
+  ]
+}

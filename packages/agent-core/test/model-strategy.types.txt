@@ -1,0 +1,30 @@
+import { AgentCoreEngine, ModelRunner, Support, type ModelResult, type ModelTransportDefinition, type ModelRunnerOptions } from '@jangts/agent-core';
+const provider = { async *stream() { yield 'ready'; } };
+declare const numeric: ModelTransportDefinition<number> & { readonly id: 'shared' };
+declare const textual: ModelTransportDefinition<string> & { readonly id: 'shared' };
+const models = { number: { provider, transports: [numeric] as const }, string: { provider, transports: [textual] as const } };
+const selected = Support.createModelStrategy({ model: 'number', models });
+const numberValue: Promise<ModelResult<number>> = new ModelRunner(selected).invoke({ input: 'x', transport: 'shared' });
+const explicit = Support.createModelStrategy({ model: models.number, transports: [textual] });
+const stringValue: Promise<ModelResult<string>> = new ModelRunner(explicit).invoke({ input: 'x', transport: 'shared' });
+const reasoning = Support.createModelStrategy({ model: models.number, reasoning: 'high', reasoningOptions: { high: { transports: [textual] } } });
+const reasoningValue: Promise<ModelResult<string>> = new ModelRunner(reasoning).invoke({ input: 'x', transport: 'shared' });
+const allOverrides = Support.createModelStrategy({ model: models.number, reasoning: 'high', reasoningOptions: { high: { transports: [textual] } }, transports: [numeric] });
+const finalValue: Promise<ModelResult<number>> = new ModelRunner(allOverrides).invoke({ input: 'x', transport: 'shared' });
+declare const dynamicId: 'number' | 'string';
+const dynamic = Support.createModelStrategy({ model: dynamicId, models });
+const unionValue: Promise<ModelResult<number | string>> = new ModelRunner(dynamic).invoke({ input: 'x', transport: 'shared' });
+// @ts-expect-error a dynamic model does not guarantee numeric output
+const wrongDynamic: Promise<ModelResult<number>> = new ModelRunner(dynamic).invoke({ input: 'x', transport: 'shared' });
+void new AgentCoreEngine({ model: selected });
+const request = Support.createModelStrategy({ model: { provider, execution: { signal: new AbortController().signal } } });
+// @ts-expect-error request execution cannot enter an Engine model binding
+void new AgentCoreEngine({ model: request });
+const requestReasoning = Support.createModelStrategy({ model: { provider }, reasoning: 'request', reasoningOptions: { request: { execution: { signal: new AbortController().signal } } } });
+// @ts-expect-error reasoning configuration also preserves request execution
+void new AgentCoreEngine({ model: requestReasoning });
+declare const broad: ModelRunnerOptions;
+const broadResult = Support.createModelStrategy({ model: broad });
+// @ts-expect-error a broadly typed input might contain request execution
+void new AgentCoreEngine({ model: broadResult });
+void numberValue; void stringValue; void reasoningValue; void finalValue; void unionValue;

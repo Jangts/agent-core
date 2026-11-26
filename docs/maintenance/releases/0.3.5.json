@@ -1,0 +1,86 @@
+{
+  "name": "@jangts/agent-core",
+  "version": "0.3.5",
+  "filename": "jangts-agent-core-0.3.5.tgz",
+  "size": 1140695,
+  "unpackedSize": 3672857,
+  "shasum": "4bfe7b5773dc295f33f26ccfc5da09cf22f2de04",
+  "integrity": "sha512-ArF2VQfru7CsO7A7x5/0UX6mZ52qpZYUoTwUXwfQbsq4CkAGfuMYqtNSqRS7MHHJDReQcX0J5yCiA+pHz/6g9g==",
+  "sha256": "d738ee75c0ba8d3b86131f5ae4a291e8ecf3470a77c45c6056dadc99adb1f9b9",
+  "runtimeComparison": {
+    "baseTarball": "jangts-agent-core-0.3.2.tgz",
+    "files": 631,
+    "changed": [],
+    "added": [],
+    "removed": []
+  },
+  "documentation": {
+    "readme": "English first; public-link and package-inclusion checks passed",
+    "keywords": [
+      "ai",
+      "agent",
+      "ai-agent",
+      "ai-agents",
+      "llm",
+      "agent-framework",
+      "agent-runtime",
+      "workflow",
+      "tool-calling",
+      "function-calling",
+      "chat-completions",
+      "openai-compatible",
+      "context-management",
+      "streaming",
+      "decorators",
+      "typescript-decorators",
+      "typescript",
+      "nodejs",
+      "browser"
+    ],
+    "description": "Platform-independent agent runtime and configurable modules for evidence, delivery, policies and interactions"
+  },
+  "publication": {
+    "status": "published",
+    "registry": "https://registry.npmjs.org",
+    "tag": "latest",
+    "publishReceipt": "npm publish exited 0; + @jangts/agent-core@0.3.5",
+    "temporarySession": "logged out and removed",
+    "registryVerified": {
+      "version": "0.3.5",
+      "latest": "0.3.5",
+      "integrity": "sha512-ArF2VQfru7CsO7A7x5/0UX6mZ52qpZYUoTwUXwfQbsq4CkAGfuMYqtNSqRS7MHHJDReQcX0J5yCiA+pHz/6g9g==",
+      "shasum": "4bfe7b5773dc295f33f26ccfc5da09cf22f2de04",
+      "readmeMatches": true,
+      "keywords": [
+        "ai",
+        "agent",
+        "ai-agent",
+        "ai-agents",
+        "llm",
+        "agent-framework",
+        "agent-runtime",
+        "workflow",
+        "tool-calling",
+        "function-calling",
+        "chat-completions",
+        "openai-compatible",
+        "context-management",
+        "streaming",
+        "decorators",
+        "typescript-decorators",
+        "typescript",
+        "nodejs",
+        "browser"
+      ],
+      "versions": ["0.0.0-stage", "0.1.0", "0.1.1", "0.2.0", "0.2.1", "0.2.5", "0.3.5"]
+    }
+  },
+  "validation": {
+    "packedExports": "passed",
+    "readmeAndKeywords": "checked in frozen tarball; English first",
+    "relativeLinks": "all local targets included",
+    "runtimeBaseline": "byte-for-byte match",
+    "smoke": "Agent ESM/CJS namespace identity; Streaming SSE and CJS range; Playground CLI --help",
+    "scope": "No browser preview, application server, live model or full runtime regression"
+  }
+}

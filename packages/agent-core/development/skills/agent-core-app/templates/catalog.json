@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "templates": [
+    {
+      "id": "node-ts",
+      "revision": "1",
+      "directory": "node-ts",
+      "files": [
+        { "origin": "template", "source": "package.json.tpl", "target": "package.json" },
+        { "origin": "template", "source": "tsconfig.json.tpl", "target": "tsconfig.json" },
+        { "origin": "template", "source": "gitignore.tpl", "target": ".gitignore" },
+        { "origin": "template", "source": "env.example.tpl", "target": ".env.example" },
+        { "origin": "template", "source": "README.md.tpl", "target": "README.md" },
+        { "origin": "template", "source": "src/config.ts.tpl", "target": "src/config.ts" },
+        { "origin": "template", "source": "src/app.ts.tpl", "target": "src/app.ts" },
+        { "origin": "template", "source": "src/catalog.ts.tpl", "target": "src/catalog.ts" },
+        { "origin": "template", "source": "src/handlers.ts.tpl", "target": "src/handlers.ts" },
+        { "origin": "template", "source": "src/model.ts.tpl", "target": "src/model.ts" },
+        {
+          "origin": "template",
+          "source": "scripts/knowledge.mjs.tpl",
+          "target": "scripts/knowledge.mjs"
+        },
+        {
+          "origin": "skill",
+          "source": "scripts/resources.mjs",
+          "target": "scripts/sdk-resources.mjs"
+        },
+        { "origin": "template", "source": "examples/ask.mjs.tpl", "target": "examples/ask.mjs" },
+        { "origin": "template", "source": "test/app.test.mjs.tpl", "target": "test/app.test.mjs" },
+        {
+          "origin": "template",
+          "source": "knowledge/knowledge.config.json.tpl",
+          "target": "knowledge/knowledge.config.json"
+        }
+      ]
+    }
+  ]
+}

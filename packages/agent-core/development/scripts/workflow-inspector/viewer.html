@@ -1,0 +1,961 @@
+<!doctype html>
+<!-- The interactive viewer builds on the workflow-inspection prototype contributed by WFJ Console. -->
+<html lang="zh-CN">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent Workflow Inspector</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #162b3b;
+      --muted: #617484;
+      --accent: #006c70;
+      --line: #d7e1e5;
+      --paper: #fff;
+      --page: #f3f6f7;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font:
+        14px/1.6 system-ui,
+        sans-serif;
+    }
+    header {
+      padding: 24px 28px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+    h1 {
+      margin: 0;
+      font-size: 23px;
+    }
+    h2 {
+      font-size: 17px;
+      margin: 14px 0 8px;
+    }
+    p {
+      margin: 5px 0;
+      color: var(--muted);
+    }
+    button,
+    input,
+    select {
+      font: inherit;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--paper);
+      color: var(--ink);
+    }
+    button {
+      cursor: pointer;
+    }
+    button:hover {
+      border-color: var(--accent);
+    }
+    button:focus-visible,
+    input:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid #62b8ba;
+      outline-offset: 2px;
+    }
+    input[type='checkbox'] {
+      accent-color: var(--accent);
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .toolbar input[type='search'] {
+      min-width: 240px;
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      min-height: 760px;
+    }
+    .visual {
+      overflow: hidden;
+      min-width: 0;
+    }
+    .viewport {
+      overflow: auto;
+      height: 720px;
+      border-bottom: 1px solid var(--line);
+    }
+    svg {
+      display: block;
+      width: 1500px;
+      height: 1000px;
+      background: radial-gradient(#dce5e8 0.7px, transparent 0.7px);
+      background-size: 18px 18px;
+      touch-action: none;
+    }
+    .edge {
+      fill: none;
+      stroke: #a1b1bc;
+      stroke-width: 1.5;
+      opacity: 0.35;
+    }
+    .edge.active {
+      stroke: var(--accent);
+      stroke-width: 2.8;
+      opacity: 1;
+    }
+    .edge.error {
+      stroke: #b44d56;
+      stroke-dasharray: 5 4;
+    }
+    .node {
+      cursor: grab;
+    }
+    .node rect {
+      fill: var(--paper);
+      stroke: #a8bac4;
+      stroke-width: 1.5;
+    }
+    .node.selected rect {
+      stroke: var(--accent);
+      stroke-width: 3;
+      fill: #e8f6f4;
+    }
+    .node.dim {
+      opacity: 0.25;
+    }
+    .node text {
+      pointer-events: none;
+      font-size: 13px;
+      fill: var(--ink);
+    }
+    .node .sub {
+      font-size: 10px;
+      fill: var(--muted);
+    }
+    aside {
+      padding: 8px 22px 24px;
+      background: var(--paper);
+      border-left: 1px solid var(--line);
+      max-height: 900px;
+      overflow: auto;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      background: #e6f3f1;
+      color: var(--accent);
+      padding: 1px 6px;
+      margin: 3px;
+      border-radius: 3px;
+    }
+    .warning {
+      background: #fff0da;
+      color: #845000;
+      padding: 7px 10px;
+      margin-top: 8px;
+    }
+    .section {
+      padding: 12px 24px;
+    }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #f3f6f8;
+      padding: 10px;
+      font:
+        12px/1.5 ui-monospace,
+        monospace;
+      max-height: 420px;
+      overflow: auto;
+    }
+    details {
+      border-top: 1px solid var(--line);
+      padding: 8px 0;
+    }
+    summary {
+      cursor: pointer;
+    }
+    a {
+      color: var(--accent);
+    }
+    .list {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .list button {
+      font-size: 12px;
+    }
+    #tools {
+      width: 100%;
+      margin: 8px 0;
+    }
+    .route {
+      border-top: 1px solid var(--line);
+      padding: 8px 0;
+    }
+    .tiny {
+      font-size: 12px;
+    }
+    .chain-row {
+      display: flex;
+      gap: 8px;
+      padding: 5px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+    .chain-row code {
+      overflow-wrap: anywhere;
+    }
+    .chain-row button {
+      min-width: 130px;
+    }
+    .selected-span {
+      background: #e6f3f1;
+    }
+    dialog {
+      width: min(800px, 90vw);
+      max-height: 90vh;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    dialog::backdrop {
+      background: #142a3b66;
+    }
+    #source {
+      overflow-wrap: anywhere;
+    }
+    #notice:empty {
+      display: none;
+    }
+    @media (max-width: 950px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      aside {
+        max-height: none;
+        border-left: 0;
+      }
+      .viewport {
+        height: 550px;
+      }
+      header {
+        padding: 16px;
+      }
+      .section {
+        padding: 12px 16px;
+      }
+    }
+  </style>
+  <header>
+    <h1>Agent Workflow Inspector</h1>
+    <p id="summary"></p>
+    <p id="source" class="tiny"></p>
+    <p id="notice" class="warning" role="status"></p>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="搜索节点或工具" aria-label="搜索节点或工具" />
+      <label><input id="all" type="checkbox" checked /> 全部连线</label>
+      <button id="minus" aria-label="缩小">−</button><button id="plus" aria-label="放大">＋</button
+      ><button id="reset">重置布局</button>
+      <button id="export">导出 JSON</button>
+    </div>
+    <p class="tiny">
+      拖动节点调整位置 · 选中节点同时显示入站与出站 · 红虚线为错误边 · 圆点为完成出口 ·
+      图表示注册关系
+    </p>
+  </header>
+  <main class="workspace">
+    <section class="visual">
+      <div class="viewport" id="viewport">
+        <svg id="graph" viewBox="0 0 1500 1000" aria-label="真实注册工作流图"></svg>
+      </div>
+      <div class="section">
+        <h2>证据范围</h2>
+        <p>
+          引用检查通过仅表示所检查的声明一致，不证明架构合理或业务完成。可选元数据未提供表示未知，不是质量不合格。
+        </p>
+        <pre id="evidence"></pre>
+        <details id="checks" hidden>
+          <summary>引用检查</summary>
+          <ul id="warnings"></ul>
+        </details>
+        <h2>阶段 × 工具生命周期矩阵</h2>
+        <p>
+          声明表示候选关系；运行关联来自 reported subflow 的 relatedDefinitionId，不证明授权或完成。
+        </p>
+        <div id="matrix"></div>
+        <h2>工具目录</h2>
+        <select id="toolFilter" aria-label="工具范围">
+          <option value="all">全部工具</option>
+          <option value="selected">当前节点关联工具</option>
+        </select>
+        <div id="tools" class="list"></div>
+        <h2>实际运行链</h2>
+        <p id="coverage"></p>
+        <div id="chain"></div>
+        <div id="span"></div>
+        <details>
+          <summary>原始快照与来源</summary>
+          <pre id="raw"></pre>
+        </details>
+      </div>
+    </section>
+    <aside id="inspector" aria-label="节点详情"></aside>
+  </main>
+  <dialog id="toolDialog">
+    <button id="closeDialog">关闭</button>
+    <div id="toolDetail"></div>
+  </dialog>
+  <script id="snapshot" type="application/json">
+    __WORKFLOW_SNAPSHOT_JSON__
+  </script>
+  <script>
+    (() => {
+      'use strict';
+      const $ = (id) => document.getElementById(id),
+        ns = 'http://www.w3.org/2000/svg';
+      const make = (tag, text, className) => {
+        const e = document.createElement(tag);
+        if (text !== undefined) e.textContent = text;
+        if (className) e.className = className;
+        return e;
+      };
+      const svg = (tag, attrs) => {
+        const e = document.createElementNS(ns, tag);
+        for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+        return e;
+      };
+      const json = (value) => JSON.stringify(value, null, 2);
+      const detail = (parent, label, value) => {
+        const d = make('details');
+        d.append(make('summary', label), make('pre', value === undefined ? '未提供' : json(value)));
+        parent.append(d);
+      };
+
+      const initial = JSON.parse($('snapshot').textContent);
+      const live = initial.live === true && location.protocol === 'http:';
+      let data,
+        envelope,
+        selected,
+        points,
+        scale = 1,
+        polling = false;
+      let capabilities, tools, edgeById, edgeIndex;
+      let width, height;
+      const caps = (id) => capabilities.get(id);
+      const bindings = (id) => [
+        ...new Map(
+          [
+            ...(data.lifecycleMatrix?.bindings ?? [])
+              .filter((binding) => binding.nodeId === id)
+              .map((binding) => ({ toolId: binding.toolId, access: 'lifecycle' })),
+            ...(caps(id)?.tools ?? []),
+          ].map((binding) => [binding.toolId, binding]),
+        ).values(),
+      ];
+      const registeredLabel = (tool) =>
+        tool?.registered === true
+          ? '已注册'
+          : tool?.registered === false
+            ? '未注册'
+            : '注册状态未知';
+
+      // Layer the graph by directed distance from its entry and keep every original edge.
+      function positions() {
+        const columns = new Map();
+        const depth = new Map([[data.graph.entryNodeId, 0]]);
+        const queue = [data.graph.entryNodeId];
+        const outgoing = new Map(data.graph.nodes.map((node) => [node.id, []]));
+        for (const edge of data.graph.edges) {
+          if (edge.targetNodeId !== undefined)
+            outgoing.get(edge.sourceNodeId).push(edge.targetNodeId);
+        }
+        for (const from of queue) {
+          for (const to of outgoing.get(from)) {
+            if (depth.has(to)) continue;
+            depth.set(to, depth.get(from) + 1);
+            queue.push(to);
+          }
+        }
+        const unplaced = Math.max(...depth.values()) + 1;
+        for (const node of data.graph.nodes) {
+          const column = depth.get(node.id) ?? unplaced;
+          if (!columns.has(column)) columns.set(column, []);
+          columns.get(column).push(node.id);
+        }
+        width = Math.max(900, 370 + 340 * Math.max(...columns.keys()));
+        height = Math.max(
+          520,
+          220 + 128 * Math.max(...[...columns.values()].map((rows) => rows.length)),
+        );
+        $('graph').setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+        zoom(scale);
+        return new Map(
+          [...columns].flatMap(([column, rows]) =>
+            rows.map((id, row) => [
+              id,
+              { x: 180 + 340 * column, y: height / 2 + (row - (rows.length - 1) / 2) * 128 },
+            ]),
+          ),
+        );
+      }
+
+      // Long and backward edges use outer lanes. An error arrow is offset from a transition.
+      function pathFor(edge) {
+        const a = points.get(edge.sourceNodeId),
+          b = points.get(edge.targetNodeId);
+        const lane = (edgeIndex.get(edge.id) % 7) * 7;
+        const offset = edge.kind === 'error' ? 10 : 0;
+        if (!b)
+          return (
+            'M ' +
+            (a.x - 32) +
+            ' ' +
+            (a.y + 34) +
+            ' Q ' +
+            (a.x - 32) +
+            ' ' +
+            (a.y + 74) +
+            ' ' +
+            (a.x - 68) +
+            ' ' +
+            (a.y + 84)
+          );
+        if (a === b)
+          return (
+            'M ' +
+            (a.x + 62) +
+            ' ' +
+            (a.y - 34) +
+            ' C ' +
+            (a.x + 132) +
+            ' ' +
+            (a.y - 97 - offset) +
+            ' ' +
+            (a.x - 132) +
+            ' ' +
+            (a.y - 97 - offset) +
+            ' ' +
+            (a.x - 62) +
+            ' ' +
+            (a.y - 34)
+          );
+        const x = a.x + 110,
+          y = b.x - 110;
+        if (b.x - a.x > 225 && b.x - a.x < 420) {
+          const middle = (a.x + b.x) / 2 + offset;
+          return (
+            'M ' +
+            x +
+            ' ' +
+            (a.y + offset) +
+            ' C ' +
+            middle +
+            ' ' +
+            (a.y + offset) +
+            ' ' +
+            middle +
+            ' ' +
+            (b.y + offset) +
+            ' ' +
+            y +
+            ' ' +
+            (b.y + offset)
+          );
+        }
+        const rail = b.x > a.x ? 24 + lane : height - 24 - lane;
+        return (
+          'M ' +
+          x +
+          ' ' +
+          (a.y + offset) +
+          ' H ' +
+          (x + 16 + lane) +
+          ' V ' +
+          rail +
+          ' H ' +
+          (y - 16 - lane) +
+          ' V ' +
+          (b.y + offset) +
+          ' H ' +
+          y
+        );
+      }
+      function draw() {
+        const root = $('graph');
+        root.replaceChildren();
+        const defs = svg('defs', {});
+        for (const [id, color] of [
+          ['arrow', '#99aeb8'],
+          ['active-arrow', '#006c70'],
+        ]) {
+          const m = svg('marker', {
+            id,
+            viewBox: '0 0 10 10',
+            refX: 9,
+            refY: 5,
+            markerWidth: 7,
+            markerHeight: 7,
+            orient: 'auto-start-reverse',
+          });
+          m.append(svg('path', { d: 'M 0 0 L 10 5 L 0 10 z', fill: color }));
+          defs.append(m);
+        }
+        root.append(defs);
+        const q = $('search').value.toLowerCase();
+        const edges = [...data.graph.edges].sort(
+          (a, b) =>
+            Number(a.sourceNodeId === selected || a.targetNodeId === selected) -
+            Number(b.sourceNodeId === selected || b.targetNodeId === selected),
+        );
+        for (const e of edges) {
+          const active = e.sourceNodeId === selected || e.targetNodeId === selected;
+          if (!$('all').checked && !active) continue;
+          const path = svg('path', {
+            d: pathFor(e),
+            class: `edge ${active ? 'active' : ''} ${e.kind === 'error' ? 'error' : ''}`,
+            'marker-end': `url(#${active ? 'active-arrow' : 'arrow'})`,
+          });
+          const title = svg('title', {});
+          title.textContent = json(e);
+          path.append(title);
+          root.append(path);
+          if (!e.targetNodeId) {
+            const a = points.get(e.sourceNodeId);
+            root.append(
+              svg('circle', {
+                cx: a.x - 68,
+                cy: a.y + 84,
+                r: 5,
+                fill: active ? '#006c70' : '#99aeb8',
+              }),
+            );
+          }
+        }
+        for (const n of data.graph.nodes) {
+          const p = points.get(n.id),
+            cap = caps(n.id),
+            matches = !q || json([n, cap]).toLowerCase().includes(q);
+          const group = svg('g', {
+            class: `node ${selected === n.id ? 'selected' : ''} ${matches ? '' : 'dim'}`,
+            transform: `translate(${p.x - 110},${p.y - 34})`,
+            tabindex: 0,
+            role: 'button',
+            'aria-label': n.name ?? n.id,
+            'aria-pressed': String(selected === n.id),
+          });
+          group.append(
+            svg('rect', { width: 220, height: 68, rx: cap?.kind === 'control' ? 30 : 6 }),
+          );
+          const name = svg('text', { x: 12, y: 26 });
+          name.textContent = (n.name ?? n.id).slice(0, 25);
+          const sub = svg('text', { x: 12, y: 48, class: 'sub' });
+          sub.textContent = `${n.id.slice(0, 24)}${n.id === data.graph.entryNodeId ? ' · 入口' : ''} · ${cap?.kind ?? '类型未知'}`;
+          group.append(name, sub);
+          group.onclick = () => select(n.id);
+          group.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              select(n.id);
+            }
+          };
+          group.onpointerdown = (e) => {
+            if (e.button !== 0) return;
+            const origin = { ...p },
+              start = { x: e.clientX, y: e.clientY },
+              rect = root.getBoundingClientRect(),
+              vb = root.viewBox.baseVal;
+            group.setPointerCapture(e.pointerId);
+            let moved = false;
+            group.onpointermove = (event) => {
+              const dx = ((event.clientX - start.x) * vb.width) / rect.width,
+                dy = ((event.clientY - start.y) * vb.height) / rect.height;
+              if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+              p.x = Math.max(176, Math.min(width - 176, origin.x + dx));
+              p.y = Math.max(112, Math.min(height - 90, origin.y + dy));
+              group.setAttribute('transform', `translate(${p.x - 110},${p.y - 34})`);
+            };
+            group.onpointerup = (event) => {
+              group.releasePointerCapture(event.pointerId);
+              group.onpointermove = null;
+              group.onpointerup = null;
+              if (moved) {
+                selected = n.id;
+                inspect();
+                draw();
+              } else select(n.id);
+            };
+          };
+          root.append(group);
+        }
+      }
+      function inspect() {
+        const box = $('inspector');
+        box.replaceChildren();
+        const node = data.graph.nodes.find((n) => n.id === selected);
+        if (!node) return;
+        const cap = caps(node.id);
+        box.append(
+          make('h2', node.name ?? node.id),
+          make('p', node.id, 'tiny'),
+          make('p', node.description ?? '用途说明未提供'),
+        );
+        for (const label of [
+          node.id === data.graph.entryNodeId ? '入口' : null,
+          cap?.kind,
+          cap?.role,
+          node.startsRound === true ? '轮次边界' : null,
+        ].filter(Boolean))
+          box.append(make('span', label, 'badge'));
+        const incoming = data.graph.edges.filter((e) => e.targetNodeId === selected);
+        box.append(make('h2', '入站关系'));
+        const links = make('div', undefined, 'list');
+        for (const e of incoming) {
+          const b = make('button', `${e.sourceNodeId} · ${e.kind}`);
+          b.onclick = () => select(e.sourceNodeId);
+          links.append(b);
+        }
+        if (!incoming.length) links.append(make('p', '无入站边'));
+        box.append(links);
+        box.append(make('h2', '路由 · 按声明优先级'));
+        const edgeMap = edgeById;
+        for (const route of [...(node.routes ?? [])].sort((a, b) => a.order - b.order)) {
+          const edge = edgeMap.get(route.edgeId),
+            row = make('div', undefined, 'route'),
+            target = make('button', `${route.order + 1}. ${edge?.targetNodeId ?? '完成'}`);
+          if (edge?.targetNodeId) target.onclick = () => select(edge.targetNodeId);
+          row.append(target, make('p', route.description ?? route.routeId ?? '说明未提供'));
+          const condition = data.routeConditions?.find(
+            (r) => r.sourceNodeId === selected && r.order === route.order,
+          );
+          row.append(
+            make(
+              'p',
+              route.conditional
+                ? '条件路由：' +
+                    (condition?.conditionSource ?? route.conditionId ?? '条件源码未提供')
+                : route.conditional === false
+                  ? '无条件路由'
+                  : '条件状态未提供',
+              'tiny',
+            ),
+          );
+          detail(row, '原始路由与条件', { route, edge, condition });
+          box.append(row);
+        }
+        for (const edge of data.graph.edges.filter(
+          (e) => e.sourceNodeId === selected && !(node.routes ?? []).some((r) => r.edgeId === e.id),
+        ))
+          detail(box, `其他出口 · ${edge.kind}`, edge);
+        box.append(make('h2', '工具绑定'));
+        const buttons = make('div', undefined, 'list');
+        for (const binding of bindings(selected)) {
+          const t = tools.get(binding.toolId),
+            b = make(
+              'button',
+              `${binding.toolId} · ${binding.access ?? '调用方式未知'} · ${registeredLabel(t)}`,
+            );
+          b.onclick = () => openTool(binding.toolId);
+          buttons.append(b);
+        }
+        if (!bindings(selected).length)
+          buttons.append(make('p', cap ? '未声明工具绑定' : '未提供绑定元数据'));
+        box.append(buttons);
+        detail(box, '前置／产出合同', { requires: node.requires, provides: node.provides });
+        detail(
+          box,
+          'Handler 与来源',
+          data.nodeMetadata?.find((item) => item.nodeId === selected),
+        );
+        if (cap?.adapters?.length) {
+          box.append(make('h2', '适配器'));
+          for (const adapter of cap.adapters) detail(box, adapter.id, adapter);
+        }
+      }
+      function matrixView() {
+        const box = $('matrix');
+        box.replaceChildren();
+        const matrix = data.lifecycleMatrix;
+        if (!matrix) {
+          box.append(make('p', '未提供矩阵声明（未知，不影响其他范式）'));
+          return;
+        }
+        box.style.overflowX = 'auto';
+        const table = make('table'),
+          head = make('tr');
+        for (const title of ['阶段', '工具 / 钩子', '执行范围', '意图', 'Handler', '运行关联'])
+          head.append(make('th', title));
+        table.append(head);
+        for (const binding of matrix.bindings) {
+          const row = make('tr'),
+            node = make('button', binding.nodeId),
+            tool = make('button', binding.toolId);
+          node.onclick = () => select(binding.nodeId);
+          tool.onclick = () => openTool(binding.toolId);
+          const records = (data.chain?.nodes ?? []).flatMap((visit) =>
+            visit.nodeId === binding.nodeId
+              ? visit.subflow
+                  .filter((step) => step.relatedDefinitionId === binding.id)
+                  .map((step) => ({ visit, step }))
+              : [],
+          );
+          const cells = Array.from({ length: 6 }, () => make('td'));
+          cells[0].append(node);
+          cells[1].append(tool, make('span', ' / ' + binding.hook));
+          cells[2].textContent = binding.mode;
+          cells[3].textContent = binding.intentIds.join(', ');
+          cells[4].textContent = binding.handler;
+          if (!records.length) cells[5].textContent = '未观察到（不等于未执行）';
+          for (const { visit, step } of records) {
+            const button = make('button', visit.spanId + ' / ' + step.stepId);
+            button.onclick = () => {
+              select(binding.nodeId);
+              detail($('inspector'), '关联运行记录', { spanId: visit.spanId, step });
+            };
+            cells[5].append(button);
+          }
+          row.append(...cells);
+          table.append(row);
+        }
+        box.append(table);
+        detail(box, '意图与允许工具', matrix.intents);
+      }
+      function toolList() {
+        const box = $('tools');
+        box.replaceChildren();
+        const q = $('search').value.toLowerCase(),
+          allowed = new Set([
+            ...bindings(selected).map((b) => b.toolId),
+            ...(caps(selected)?.adapters ?? []).flatMap((a) => a.toolIds ?? []),
+          ]);
+        for (const t of data.tools ?? []) {
+          if (
+            ($('toolFilter').value === 'selected' && !allowed.has(t.id)) ||
+            (q && !json(t).toLowerCase().includes(q))
+          )
+            continue;
+          const b = make('button', `${t.id} · ${registeredLabel(t)}`);
+          b.onclick = () => openTool(t.id);
+          box.append(b);
+        }
+        if (!box.children.length)
+          box.append(make('p', '无匹配工具；未提供目录时不能推断可用能力。'));
+      }
+      function schemaFields(parent, schema, prefix = '', depth = 0) {
+        if (!schema || typeof schema !== 'object' || depth > 8) return;
+        const required = new Set(Array.isArray(schema.required) ? schema.required : []);
+        for (const [key, value] of Object.entries(schema.properties ?? {})) {
+          if (!value || typeof value !== 'object') continue;
+          const path = prefix ? prefix + '.' + key : key,
+            row = make('div', undefined, 'route');
+          row.append(
+            make('code', path),
+            make('span', required.has(key) ? '必填' : '可选', 'badge'),
+            make(
+              'p',
+              `${json(value.type ?? value.$ref ?? '类型见原始 Schema')}${value.enum ? ' · 枚举 ' + json(value.enum) : ''}`,
+              'tiny',
+            ),
+          );
+          if (value.description) row.append(make('p', value.description));
+          parent.append(row);
+          schemaFields(parent, value, path, depth + 1);
+          if (value.items) schemaFields(parent, value.items, path + '[]', depth + 1);
+        }
+      }
+      function openTool(id) {
+        const t = tools.get(id),
+          box = $('toolDetail');
+        box.replaceChildren();
+        box.append(
+          make('h2', id),
+          make('p', t?.description ?? '工具声明未提供'),
+          make('span', registeredLabel(t), 'badge'),
+          make('h2', '参数'),
+        );
+        schemaFields(box, t?.parameters);
+        detail(box, '参数合同（原始 JSON Schema）', t?.parameters);
+        const users = data.graph.nodes
+            .map((node) => ({ ...caps(node.id), nodeId: node.id, tools: bindings(node.id) }))
+            .filter(
+              (c) =>
+                (c.tools ?? []).some((b) => b.toolId === id) ||
+                (c.adapters ?? []).some((a) => a.toolIds?.includes(id)),
+            ),
+          links = make('div', undefined, 'list');
+        box.append(make('h2', '引用节点'));
+        for (const c of users) {
+          const b = make('button', c.nodeId);
+          b.onclick = () => {
+            $('toolDialog').close();
+            select(c.nodeId);
+          };
+          links.append(b);
+        }
+        box.append(links);
+        detail(box, '节点与调用方式', users);
+        detail(box, '完整工具声明', t);
+        $('toolDialog').showModal();
+      }
+      function select(id) {
+        const focusedNode = document.activeElement?.closest('.node');
+        selected = id;
+        inspect();
+        draw();
+        revealSelected();
+        toolList();
+        if (focusedNode) $('graph').querySelector('.node.selected')?.focus();
+      }
+      // The canvas can be taller than its scrollport: keep selected nodes reachable on first load.
+      function revealSelected() {
+        const point = points?.get(selected),
+          viewport = $('viewport');
+        if (!point || !viewport.clientWidth || !viewport.clientHeight) return;
+        const left = (point.x - 110) * scale,
+          top = (point.y - 34) * scale;
+        if (
+          left < viewport.scrollLeft ||
+          left + 220 * scale > viewport.scrollLeft + viewport.clientWidth
+        )
+          viewport.scrollLeft = Math.max(0, point.x * scale - viewport.clientWidth / 2);
+        if (
+          top < viewport.scrollTop ||
+          top + 68 * scale > viewport.scrollTop + viewport.clientHeight
+        )
+          viewport.scrollTop = Math.max(0, point.y * scale - viewport.clientHeight / 2);
+      }
+      function chainView() {
+        $('chain').replaceChildren();
+        $('span').replaceChildren();
+        const chain = data.chain;
+        $('coverage').textContent = chain
+          ? `运行 ${chain.runId} · 源记录覆盖 ${json(chain.coverage)} · 以下为运行元数据`
+          : '未提供实际运行链。此图不证明任何节点已经执行。';
+        for (const n of chain?.nodes ?? []) {
+          const knownNode = data.graph.nodes.some((node) => node.id === n.nodeId);
+          const sameRevision =
+            Boolean(data.graph.revision) && data.graph.revision === n.definitionRevision;
+          const location = !knownNode ? ' · 当前图外节点' : sameRevision ? '' : ' · 版本未对齐';
+          const row = make('div', undefined, 'chain-row'),
+            b = make('button', n.name ?? n.nodeId);
+          b.onclick = () => {
+            if (knownNode && sameRevision) select(n.nodeId);
+            $('span').replaceChildren(make('h2', `执行 ${n.spanId ?? 'ID 未提供'}`));
+            detail($('span'), '本次执行原始记录', n);
+            for (const e of $('chain').children) e.classList.remove('selected-span');
+            row.classList.add('selected-span');
+          };
+          row.append(
+            b,
+            make('code', n.spanId ?? 'span 未提供'),
+            make(
+              'span',
+              `${n.status} · ${n.durationMs === undefined ? '耗时未提供' : n.durationMs + ' ms'}${location}`,
+            ),
+          );
+          $('chain').append(row);
+        }
+        if (chain)
+          detail($('chain'), '原始执行跳转与覆盖（不从相邻节点猜测连线）', {
+            transitions: chain.transitions,
+            coverage: chain.coverage,
+          });
+      }
+      function apply(next) {
+        const previousGraph = data?.graph;
+        envelope = next;
+        data = next.snapshot;
+        capabilities = new Map((data.nodeCapabilities ?? []).map((item) => [item.nodeId, item]));
+        tools = new Map((data.tools ?? []).map((item) => [item.id, item]));
+        edgeById = new Map(data.graph.edges.map((edge) => [edge.id, edge]));
+        edgeIndex = new Map(data.graph.edges.map((edge, index) => [edge.id, index]));
+        selected = data.graph.nodes.some((node) => node.id === selected)
+          ? selected
+          : data.graph.entryNodeId;
+        if (!previousGraph || json(previousGraph) !== json(data.graph)) points = positions();
+        $('evidence').textContent = json(next.evidence);
+        $('checks').hidden = !next.warnings.length;
+        $('warnings').replaceChildren(...next.warnings.map((warning) => make('li', warning)));
+        $('summary').textContent =
+          data.graph.workflowId +
+          ' · ' +
+          data.graph.nodes.length +
+          ' 个注册节点 · ' +
+          data.graph.edges.length +
+          ' 条注册边';
+        $('source').textContent =
+          '快照 ' +
+          (data.generatedAt ?? '时间未提供') +
+          ' · 来源指纹 ' +
+          (data.configurationHash ?? '未提供') +
+          ' · ' +
+          (live ? '跟随已登记的源文件' : '离线快照');
+        $('raw').textContent = json(data);
+        $('notice').textContent = next.stale ? '更新失败，当前显示上一份有效快照。' : '';
+        select(selected);
+        chainView();
+        matrixView();
+      }
+      $('search').oninput = () => {
+        draw();
+        toolList();
+      };
+      $('all').onchange = draw;
+      $('toolFilter').onchange = toolList;
+      const zoom = (value) => {
+        scale = Math.max(0.25, Math.min(2.5, value));
+        $('graph').style.width = width * scale + 'px';
+        $('graph').style.height = height * scale + 'px';
+      };
+      $('plus').onclick = () => {
+        zoom(scale + 0.15);
+        revealSelected();
+      };
+      $('minus').onclick = () => {
+        zoom(scale - 0.15);
+        revealSelected();
+      };
+      $('reset').onclick = () => {
+        scale = 1;
+        points = positions();
+        draw();
+        revealSelected();
+      };
+      window.addEventListener('resize', revealSelected);
+      $('closeDialog').onclick = () => $('toolDialog').close();
+      $('export').onclick = () => {
+        const url = URL.createObjectURL(new Blob([json(data)], { type: 'application/json' })),
+          a = make('a');
+        a.href = url;
+        a.download = 'workflow-snapshot.json';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      };
+      apply(initial);
+      if (live)
+        setInterval(async () => {
+          if (polling) return;
+          polling = true;
+          try {
+            const response = await fetch('/snapshot.json', { cache: 'no-store' });
+            if (!response.ok) throw Error('源文件的最新导出未完成');
+            const next = await response.json();
+            if (next.inputSha256 !== envelope.inputSha256) apply(next);
+            else $('notice').textContent = '';
+          } catch (error) {
+            $('notice').textContent = '更新失败，当前显示上一份有效快照。';
+          } finally {
+            polling = false;
+          }
+        }, 1500);
+    })();
+  </script>
+</html>

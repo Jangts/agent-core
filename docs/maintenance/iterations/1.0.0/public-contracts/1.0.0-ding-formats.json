@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "strategy": "retain existing formats and storage keys; no rewrite migration",
+  "changes": "TypeScript names and explicit input aliases only",
+  "formats": [
+    {
+      "id": "diagnostics",
+      "writer": "version 2",
+      "reader": "version 2 per existing readers",
+      "owner": "App recorder/source",
+      "guarantee": "Keep event kinds, recordedSubSteps/subflow/subStep and identity; names do not grant authorization."
+    },
+    {
+      "id": "workflow-graph-trace",
+      "writer": "schemaVersion 1",
+      "reader": "schemaVersion 1",
+      "owner": "App trace source",
+      "guarantee": "Topology and observed visits differ; incomplete coverage remains explicit; aliases do not rewrite records."
+    },
+    {
+      "id": "agent-snapshot",
+      "writer": "existing id/source/data record",
+      "reader": "existing snapshot record",
+      "owner": "Core validates; App owns data",
+      "guarantee": "Host-data and branch snapshot only; does not restore a workflow cursor or credentials."
+    },
+    {
+      "id": "durable",
+      "writer": "version 2",
+      "reader": "version 2 only",
+      "owner": "Kit validates; App owns exclusive durable store",
+      "guarantee": "Keep definition revision/task/step operation identity and old commitId; each new persist generates a new commitId. Unknown remains unknown."
+    },
+    {
+      "id": "waiting",
+      "writer": "version 1",
+      "reader": "version 1",
+      "owner": "WaitGate + App exclusive store",
+      "guarantee": "Keep definitionId/taskId storage key, waitId/subject/submission/expiry/terminal state; never reopen or extend by renaming."
+    },
+    {
+      "id": "branch-version-record",
+      "writer": "existing FamilyRecord shape",
+      "reader": "existing record via same store",
+      "owner": "App CAS store and current authorization",
+      "guarantee": "Keep id/revision/activeId/expiresAtMs/versions; CAS revision is not a format version."
+    },
+    {
+      "id": "continuation",
+      "writer": "envelope version 1 with anchored native turns",
+      "reader": "existing validated anchored format only",
+      "owner": "Provider adapter + App persistence",
+      "guarantee": "Keep scope/protocol/model/endpoint, complete history anchors/native signatures and operation/remote/item identities. Unknown or unanchored versions reject."
+    },
+    {
+      "id": "review-decision",
+      "writer": "existing binding/state recipe",
+      "reader": "existing validated recipe",
+      "owner": "App ledger and atomic acceptance",
+      "guarantee": "Keep dispute/parent/content/policy/source revisions, wait/action/deadline/submission; waiting resolved does not mean accepted."
+    },
+    {
+      "id": "model-catalog-projection",
+      "writer": "existing availableGoals/availableGoalIds/goalIds",
+      "reader": "unchanged model protocol",
+      "owner": "App model protocol",
+      "guarantee": "Canonical host projections use domainTool names; model-facing wire vocabulary is intentionally retained."
+    }
+  ],
+  "mixedVersionPolicy": {
+    "oldWriterToCandidateReader": "supported only within the existing accepted format contracts",
+    "candidateWriterToOldReader": "no new persisted writer format; do not infer general cross-version runtime compatibility",
+    "unknownFormat": "reject before a new external operation; no guessing, automatic reopen or silent conversion"
+  },
+  "conditionalSupplement": "No new participant, resume or cancellation format until the collaboration supplement actually adopts and specifies it."
+}

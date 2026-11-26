@@ -1,0 +1,57 @@
+{
+  "name": "@jangts/agent-core",
+  "version": "0.3.1",
+  "filename": "jangts-agent-core-0.3.1.tgz",
+  "size": 1137663,
+  "unpackedSize": 3658468,
+  "shasum": "060e29feb82eb9641b0b1cfdf2b8a8649bd86bd8",
+  "integrity": "sha512-VHmQyF63PZ088yO+oF+UUHbAVzkTHzRKM//ydGzcsT8FNkh6hXtS7kMrbLDa8B9qNzyYh9I/S+PqdbUmZcfrsw==",
+  "sha256": "8ebbfc4cf21d0eacf20aa9bfb7e965ccfb65a4092632986128c380d5ad380900",
+  "tests": {
+    "root_build_packages": "passed",
+    "sdk": {
+      "passed": 800,
+      "failed": 0
+    },
+    "decorator_targeted": {
+      "passed": 8,
+      "failed": 0,
+      "includes": "ESM/CJS strict types, namespace atomicity, method binding, tree-shaking, website/Banker handler offline fixtures, four documentation recipes"
+    },
+    "packed_artifact": "passed",
+    "documentation_sources": "generated; static website not rebuilt"
+  },
+  "unchangedRuntime": {
+    "baseVersion": "0.2.5",
+    "checkedCompiledFiles": 619,
+    "changedOrMissing": []
+  },
+  "publication": {
+    "status": "unpublished",
+    "registry": "https://registry.npmjs.org",
+    "tag": "latest",
+    "publishReceipt": "npm publish exited 0; integrity and shasum match the frozen tarball.",
+    "registryVerified": {
+      "version": "0.3.1",
+      "dist.integrity": "sha512-VHmQyF63PZ088yO+oF+UUHbAVzkTHzRKM//ydGzcsT8FNkh6hXtS7kMrbLDa8B9qNzyYh9I/S+PqdbUmZcfrsw==",
+      "dist.shasum": "060e29feb82eb9641b0b1cfdf2b8a8649bd86bd8",
+      "dist-tags": {
+        "latest": "0.3.1"
+      }
+    }
+  },
+  "withdrawal": {
+    "requested": true,
+    "replacementVersion": "0.3.2",
+    "status": "succeeded",
+    "unpublishReceipt": "npm unpublish @jangts/agent-core@0.3.1 exited 0; returned - @jangts/agent-core@0.3.1",
+    "authentication": "Temporary official web login plus operation-specific authentication",
+    "registryVerifiedAfterWithdrawal": {
+      "versions": ["0.0.0-stage", "0.1.0", "0.1.1", "0.2.0", "0.2.1", "0.2.5", "0.3.2"],
+      "dist-tags": {
+        "latest": "0.3.2"
+      }
+    },
+    "temporarySession": "logged out and removed"
+  }
+}

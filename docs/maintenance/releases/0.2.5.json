@@ -1,0 +1,49 @@
+{
+  "name": "@jangts/agent-core",
+  "version": "0.2.5",
+  "filename": "jangts-agent-core-0.2.5.tgz",
+  "size": 1122810,
+  "unpackedSize": 3607498,
+  "shasum": "d76050dfd5f6546374a4ec576ea82954f6e20f40",
+  "integrity": "sha512-4MOEqYJ4kJN/lQEXGymFqMJ/r5cZyNv0Eg7SD+tM98/4QcN9pEApyECl6znH229LlPZec/vNvL+yJrB33bYz0w==",
+  "sha256": "ddd3c1f63525acf4bd90f7d622f922f9e708abfffb63fab6f788dc2030dbec14",
+  "tests": {
+    "sdk": {
+      "passed": 792,
+      "failed": 0
+    },
+    "types_esm_cjs": {
+      "passed": 6,
+      "failed": 0
+    },
+    "banker": {
+      "passed": 23,
+      "failed": 0
+    },
+    "website_agent": {
+      "passed": 24,
+      "failed": 0
+    },
+    "documentation_website": {
+      "build": "passed",
+      "check": "passed",
+      "sourceSha256": "6ba289b857e92270e013fe7bfdf6e966998c91f7389e9f0e79e1d9ee7767a5be"
+    },
+    "packed_artifact": {
+      "exports": "passed",
+      "esm_cache_roundtrip": "passed",
+      "cjs_cache_roundtrip": "passed"
+    }
+  },
+  "publication": {
+    "status": "published",
+    "registry": "https://registry.npmjs.org",
+    "tag": "latest",
+    "publishReceipt": "npm publish exited 0; returned integrity and shasum match pack metadata.",
+    "registryVerified": {
+      "version": "0.2.5",
+      "dist.integrity": "sha512-4MOEqYJ4kJN/lQEXGymFqMJ/r5cZyNv0Eg7SD+tM98/4QcN9pEApyECl6znH229LlPZec/vNvL+yJrB33bYz0w==",
+      "dist.shasum": "d76050dfd5f6546374a4ec576ea82954f6e20f40"
+    }
+  }
+}

@@ -1,0 +1,474 @@
+import type { ModelResult, ToolResult } from '@jangts/agent-core';
+import { AgentCoreEngine, Support } from '@jangts/agent-core';
+import type { Support as SupportTypes } from '@jangts/agent-core';
+import { Knowledge, GoalRegistry, Interaction, ToolLifecycleRegistry as Tools } from '@jangts/agent-core/kits';
+import type * as Kit from '@jangts/agent-core/kits';
+import type { WorkflowContext, SubFlowLogger } from '@jangts/agent-core';
+declare const reportContext: WorkflowContext;
+void reportContext.tools.invoke({ toolId: 'read', input: {}, signal: new AbortController().signal });
+// @ts-expect-error tool observation identity is supplied by the Workflow
+void reportContext.tools.invoke({ toolId: 'read', input: {}, diagnostics: reportContext.diagnostics });
+const subLogger: SubFlowLogger = reportContext.createSubFlowLogger();
+void reportContext.model.invoke({ input: 'hello', logger: subLogger });
+void reportContext.tools.invoke({ toolId: 'read', input: {}, logger: subLogger });
+const scopedLogger = subLogger.fork('prepare');
+const sharedLogger: import('@jangts/agent-core').SubFlowLog = scopedLogger;
+sharedLogger.write({ name: 'Read', kind: 'read', type: 'custom.read' });
+subLogger.write({ name: 'Read', kind: 'read', type: 'custom.read', subnodeId: 'prepare' });
+// @ts-expect-error scoped delegates cannot fork
+scopedLogger.fork('other');
+// @ts-expect-error scoped delegates cannot override their group
+scopedLogger.write({ name: 'Spoof', kind: 'read', subnodeId: 'other' });
+// @ts-expect-error native model invocations require the full logger
+void reportContext.model.invoke({ input: 'no', logger: scopedLogger });
+// @ts-expect-error native tool invocations require the full logger
+void reportContext.tools.invoke({ toolId: 'read', input: {}, logger: scopedLogger });
+// @ts-expect-error grouping cannot be revised
+scopedLogger.fix('id', { subnodeId: 'other' });
+// @ts-expect-error the business type cannot be revised
+scopedLogger.fix('id', { type: 'other' });
+const subStepId: string | -1 = subLogger.write({ name: 'Read', kind: 'read' });
+subLogger.fix(subStepId, { status: 'success', usedModel: true, payload: { result: 'answer' } });
+reportContext.report({ usedModel: false });
+// @ts-expect-error logger submission is not a report field
+reportContext.report({ subs: subLogger });
+// @ts-expect-error reports require an execution-owned logger, not a plain array
+reportContext.report({ subs: [] });
+// @ts-expect-error even a valid snapshot cannot bypass the instance boundary
+reportContext.report({ subs: subLogger.readAll() });
+// @ts-expect-error fixes cannot rename or replace the step identity
+subLogger.fix(subStepId, { name: 'renamed' });
+// @ts-expect-error model use is a boolean, not a truthy label
+reportContext.report({ usedModel: 'yes' });
+
+const entries: SupportTypes.RegistrationDefinition<{ enabled: boolean }>[] = [
+  { id: 'local', when: context => context.enabled, register(context) { context.enabled = false; } },
+];
+Support.defineRegistrationCatalog(entries).install({ enabled: true });
+const event: Support.SseOutputEvent = { event: 'message', data: 'hello' };
+Support.encodeSseEvent(event);
+const observer: Support.ProviderObserver = { write(observation) { const name: Support.ProviderEventName = observation.event; void name; } };
+void observer;
+const read: Kit.KnowledgeRead = { documentId: 'guide', selection: { mode: 'self', sectionIds: ['first'] } };
+const catalog: Kit.KnowledgeCatalog = Knowledge.defineKnowledgeCatalog([{ id: 'guide', revision: '1', parts: ['text'] }]);
+void catalog; void read;
+const registry = GoalRegistry.create([{ id: 'reply', description: 'Reply', delegates: ['reply'] }]);
+class Derived extends GoalRegistry<Kit.GoalTool> {}
+void registry; void Derived;
+const protocol: Interaction<{ kind: 'reply'; text: string }, string> = Interaction.define({
+  commandField: 'kind', commands: { reply: { fields: ['text'], format: value => value.text } },
+});
+const commands = Interaction.Commands.define<{ text: string }, string>({ reply: { fields: ['text'], format: value => value.text } });
+void protocol; void commands;
+function acceptTools<T extends Kit.ToolRuntimeTypes>(tools: Tools<T>): Tools<T> { return tools; }
+
+type DescribedTool = Kit.Tool<Kit.ToolRuntimeTypes> & {
+  readonly id: 'service'; readonly kind: 'read'; readonly description: 'Read service status';
+  readonly audience: 'model'; readonly effect: 'none';
+};
+declare const lifecycleRegistry: Tools<Kit.ToolRuntimeTypes, DescribedTool>;
+const describedTool = lifecycleRegistry.describe('model')[0];
+const describedId: 'service' = describedTool.id;
+const describedKind: 'read' = describedTool.kind;
+const describedDescription: 'Read service status' = describedTool.description;
+const describedAudience: 'model' = describedTool.audience;
+const describedEffect: 'none' = describedTool.effect;
+// describe returns editable metadata copies, not readonly registered definitions.
+describedTool.id = 'service';
+describedTool.goalIds.push('status');
+// @ts-expect-error the metadata projection retains the registered literal type
+describedTool.kind = 'write';
+void describedId; void describedKind; void describedDescription; void describedAudience; void describedEffect;
+void acceptTools;
+const engine = new AgentCoreEngine<string>({ maxRounds: 2, errors: { exhausted: () => new Error('exhausted') } });
+const workflow = AgentCoreEngine.createWorkflow<{ value?: string }, string>({
+  id: 'local', entryNodeId: 'first', nodes: [{ id: 'first', description: 'First', startsRound: true,
+    run: () => ({ value: 'done' }), provides: ['value'], routes: [{ complete: state => state.value! }] }],
+});
+const customResult: Promise<string> = engine.bindWorkflow(workflow).run({});
+const appWorkflow = AgentCoreEngine.createWorkflow<{}, string, { value: string }>({
+  id: 'app', entryNodeId: 'deliver', nodes: [{ id: 'deliver', description: 'Deliver',
+    routes: [{ complete: (_, context) => context.app.value }] }],
+});
+void new AgentCoreEngine<string>().bindWorkflow(appWorkflow, { value: 'done' }).run({});
+// @ts-expect-error a workflow with App dependencies requires app
+void engine.bindWorkflow(appWorkflow).run({});
+// @ts-expect-error app must match the workflow contract
+void engine.bindWorkflow(appWorkflow, { value: 42 }).run({});
+void customResult;
+const budget = new AgentCoreEngine.AttemptBudget(1); budget.take();
+const context = Support.defineContextFragments<{ message: string }>([
+  { id: 'request', sourceId: 'http', role: 'user', trust: 'user', lifetime: 'turn', maxChars: 100,
+    format: input => ({ message: input.message }) },
+]);
+const contextPlan: Support.ContextPlan = context.plan({ input: { message: 'hello' }, maxInputChars: 1000 });
+const contextPolicy: Support.ContextPolicy = { mode: 'audit', mutableFragmentIds: ['history'] };
+const compressor: Support.ContextCompressor = Support.createContextCompressor({
+  id: 'summary', instruction: 'Summarize data.', transport: 'text', maxOutputTokens: 100,
+  parse: value => ({ history: String(value) }),
+});
+void contextPlan; void contextPolicy; void compressor;
+const selection: Support.ContextSelection = { mode: 'auto', maxTrimLossRatio: 0.25, reserveCalls: 1 };
+const chooser: Support.ContextSelector = Support.createContextSelector({
+  id: 'chooser', instruction: 'Choose registered steps.', transport: 'text', maxOutputTokens: 100, maxExcerptChars: 1000,
+  parse: () => ['window'],
+});
+const managedPolicy: Support.ContextPolicy = { mode: 'reduce', steps: [], selection };
+void chooser; void managedPolicy;
+import type { ModelTokenBudget } from '@jangts/agent-core';
+const tokenBudget: ModelTokenBudget = { counterId: 'test', contextWindowTokens: 32000,
+  countTokens: ({ messages }) => messages.length };
+const retainedPolicy: Support.ContextPolicy = { mode: 'reduce', triggerChars: 20000, targetInputChars: 16000,
+  triggerTokens: 10000, targetInputTokens: 8000,
+  steps: [{ id: 'summary', kind: 'compress', fragmentId: 'history', handlerId: 'summary', targetChars: 4000,
+    preserve: { field: 'history', keepGroups: 3, grouping: { kind: 'user-turn' } } }] };
+void tokenBudget; void retainedPolicy;
+import { ModelRunner } from '@jangts/agent-core';
+import type { ChatProvider } from '@jangts/agent-core';
+declare const appProvider: ChatProvider;
+declare const callSignal: AbortSignal;
+const namedModel = new ModelRunner<'text'>({ provider: appProvider, execution: { signal: callSignal }, maxCalls: 1, callTimeoutMs: 1000, maxInputChars: 1000, transports: [Support.createTextTransport({ id: 'text' })] });
+void namedModel.invoke({ stageId: 'reply', input: [{ role: 'user', content: 'hello' }], maxOutputTokens: 100, transport: 'text' });
+const inferredTool = Support.defineTool({ id: 'double', kind: 'math', description: 'Double a number', inputSchema: Support.defineSchema({ jsonSchema: { type: 'object' }, parse(value: unknown) { if (typeof value !== 'number') throw new Error(); return value; } }),
+  authorize(input, { app }: { app: { allowed: boolean } }) { const number: number = input; void number; if (!app.allowed) throw new Error(); },
+  execute(input, { signal }) { const number: number = input; const abort: AbortSignal = signal; void abort; return number * 2; },
+  parseOutput(value: unknown) { if (typeof value !== 'number') throw new Error(); return value; },
+});
+const declarativeTools = Support.defineToolCatalog([inferredTool]);
+const typedToolView = declarativeTools.tools.select({ intent: true }, { allowed: true });
+// @ts-expect-error demand discovery retains the App context type
+declarativeTools.tools.select({ intent: true }, { allowed: 'yes' });
+// @ts-expect-error explicit selection retains the App context type
+declarativeTools.tools.select(['double'], { allowed: 'yes' });
+void typedToolView;
+void declarativeTools.bind({ app: { allowed: true }, execution: { signal: callSignal } }).invoke({ toolId: 'double', input: 2 });
+
+const typedCapabilities = Support.defineModelTools([{
+  id: 'typed', description: 'Typed result', inputSchema: { jsonSchema: { type: 'object' }, parse: (value: unknown) => value as Record<string, unknown> },
+  resolve: (_value: Record<string, unknown>) => ({ text: 'ok' }),
+}]);
+const typedTransport = Support.createModelTransport({ id: 'typed', tools: typedCapabilities });
+const typedRunner = new ModelRunner({ provider: appProvider, execution: { signal: callSignal }, maxCalls: 1, callTimeoutMs: 1000, maxInputChars: 1000, transports: [typedTransport] });
+const typedResult = typedRunner.invoke({ stageId: 'reply', input: [], maxOutputTokens: 100, transport: typedTransport });
+const checkedResult: Promise<ModelResult<{ text: string }>> = typedResult;
+// @ts-expect-error parser determines the result, not the caller's assertion
+const wrongResult: Promise<number> = typedResult;
+void checkedResult; void wrongResult;
+const inputAdapter = Support.fromParserSchema({ parse: (_value: unknown) => ({ count: 1 }) }, { toJsonSchema: () => ({ type: 'object' }) });
+Support.defineTool({ id: 'schema', kind: 'math', description: 'Schema', inputSchema: inputAdapter,
+  authorize(input) { const number: number = input.count; void number; },
+  execute(input) { return input.count; }, parseOutput: (_value: unknown) => 1 });
+
+const typedToolRuntime = declarativeTools.bind({ app: { allowed: true }, execution: { signal: callSignal } });
+const doubled: Promise<ToolResult<number>> = typedToolRuntime.invoke({ toolId: 'double', input: { value: 2 } });
+// @ts-expect-error execution output is validated by the declared number parser
+const wrongToolResult: Promise<ToolResult<string>> = typedToolRuntime.invoke({ toolId: 'double', input: { value: 2 } });
+const proposalTransport = Support.createModelTransport({ id: 'proposal', tools: typedToolRuntime.tools });
+const toolProposal: Promise<ModelResult<Support.ToolProposal>> = typedRunner.invoke({ stageId: 'choose', input: [], maxOutputTokens: 100, transport: proposalTransport });
+declare const dynamicToolName: string;
+const dynamicToolResult: Promise<ToolResult<unknown>> = typedToolRuntime.invoke({ toolId: dynamicToolName, input: {} });
+// @ts-expect-error an arbitrary runtime name does not imply a numeric result
+const unsafeDynamicResult: Promise<ToolResult<number>> = typedToolRuntime.invoke({ toolId: dynamicToolName, input: {} });
+void doubled; void wrongToolResult; void toolProposal; void dynamicToolResult; void unsafeDynamicResult;
+const labelTool = Support.defineTool({ id: 'label', kind: 'read', description: 'Label', inputSchema: Support.defineSchema({ jsonSchema: { type: 'object' }, parse: (value: unknown) => value }),
+  authorize(_input, { app }: { app: { allowed: boolean } }) { if (!app.allowed) throw new Error(); },
+  execute: () => 'label', parseOutput: (_value: unknown) => 'label' });
+const mixedTools = Support.defineToolCatalog([inferredTool, labelTool]);
+const mixedRuntime = mixedTools.select(['double', 'label']).bind({ app: { allowed: true }, execution: { signal: callSignal } });
+const mixedNumber: Promise<ToolResult<number>> = mixedRuntime.invoke({ toolId: 'double', input: {} });
+const mixedLabel: Promise<ToolResult<string>> = mixedRuntime.invoke({ toolId: 'label', input: {} });
+// @ts-expect-error selection keeps the relationship between the name and output parser
+const wrongLabel: Promise<ToolResult<number>> = mixedRuntime.invoke({ toolId: 'label', input: {} });
+void mixedNumber; void mixedLabel; void wrongLabel;
+const metadataDefinitions = [{ ...inferredTool, guidance: 'Application-owned metadata' }];
+const metadataCatalog = Support.defineToolCatalog(metadataDefinitions);
+const copiedGuidance: string = metadataCatalog.definitions[0].guidance;
+void copiedGuidance;
+
+import { getErrorInfo, type ModelRunnerSettings } from '@jangts/agent-core';
+const flatSettings: ModelRunnerSettings = { maxCalls: 2, callTimeoutMs: 1000, maxInputChars: 1000, maxSchemaChars: 2000, tokenBudget };
+const flatRunner = new ModelRunner({ provider: appProvider, execution: { signal: callSignal }, ...flatSettings, transports: [typedTransport] });
+// @ts-expect-error nested model config is no longer accepted
+new ModelRunner({ provider: appProvider, config: { maxCalls: 1 } });
+const errorInfo = getErrorInfo(new Error('fixture'));
+const optionalRetry: boolean | undefined = errorInfo.isRetryable;
+void flatRunner; void optionalRetry;
+
+const minimalRunner = new ModelRunner({ provider: appProvider });
+const emptySettings: ModelRunnerSettings = {};
+new ModelRunner({ provider: appProvider, ...emptySettings });
+// @ts-expect-error defaults do not invent a model connection
+new ModelRunner({});
+const minimalText: Promise<ModelResult<string>> = minimalRunner.invoke('hello');
+const namedPrompt: Promise<ModelResult<string>> = minimalRunner.invoke({ input: 'hello', instructions: 'Be brief' });
+const rawInputText: Promise<ModelResult<string>> = minimalRunner.invoke({ input: 'hello' });
+// @ts-expect-error ordinary Core calls return text without an unregistered output assertion
+const wrongMinimal: Promise<ModelResult<number>> = minimalRunner.invoke('hello');
+// @ts-expect-error a request has one input source
+minimalRunner.invoke({ prompt: 'hello', input: [] });
+void minimalText; void namedPrompt; void rawInputText; void wrongMinimal;
+
+import { CompatibleModelProvider } from '@jangts/agent-core';
+const minimalConnection = new CompatibleModelProvider({ config: { baseUrl: 'https://model.invalid/v1', apiKey: 'fixture', model: 'fixture' } });
+new ModelRunner({ provider: minimalConnection }).invoke('hello');
+const dynamicConnection = new CompatibleModelProvider({ config: () => ({ baseUrl: 'https://model.invalid/v1', apiKey: 'fixture', model: 'fixture' }) });
+void dynamicConnection;
+
+// Canonical named requests retain the same inferred value types as legacy calls.
+const namedTyped: Promise<ModelResult<{ text: string }>> = typedRunner.invoke({ stageId: 'reply', input: [], transport: typedTransport });
+const namedTool: Promise<ToolResult<number>> = typedToolRuntime.invoke({ toolId: 'double', input: { value: 2 } });
+const selectedRuntime = mixedTools.select(['double'] as const).bind({ app: { allowed: true }, execution: { signal: callSignal } });
+const selectedValue: Promise<ToolResult<number>> = selectedRuntime.invoke({ toolId: 'double', input: {} });
+// @ts-expect-error the excluded tool has no known output in this selected runtime
+const excludedValue: Promise<ToolResult<string>> = selectedRuntime.invoke({ toolId: 'label', input: {} });
+// @ts-expect-error mutually exclusive stage aliases
+minimalRunner.invoke({ input: 'x', stageId: 'new', stage: 'old' });
+// @ts-expect-error transport handle and ID cannot be combined
+minimalRunner.invoke({ input: 'x', transportId: 'text', transport: typedTransport });
+import { defineWorkflow, createDiagnostics, ToolRegistry } from '@jangts/agent-core';
+const executionDiagnostics = createDiagnostics({ output: { write(event) { const id: string = event.eventId; void id; } } });
+const canonicalFlow = defineWorkflow({ id: 'flow', entryNodeId: 'round', nodes: [{ id: 'round', description: 'round', startsRound: true,
+  routes: [{ id: 'complete', complete: () => 1 }] }] });
+void defineWorkflow({ id: 'bad', nodes: [] });
+// @ts-expect-error Core dynamic tools do not accept a caller-asserted value type
+new ToolRegistry().invoke<number>({ toolId: 'double', input: {} });
+void namedTyped; void namedTool; void selectedValue; void excludedValue; void executionDiagnostics; void canonicalFlow;
+
+// Registered transport IDs and heterogeneous model IDs determine output types.
+const byIdRunner = new ModelRunner({ provider: appProvider, transports: [typedTransport] });
+const byIdValue: Promise<ModelResult<{ text: string }>> = byIdRunner.invoke({ input: [], transport: 'typed' });
+// @ts-expect-error registered transport output is not a number
+const byIdWrong: Promise<ModelResult<number>> = byIdRunner.invoke({ input: [], transport: 'typed' });
+import { ModelCalls as ExternalCalls } from '@jangts/agent-core/kits/inference';
+const external = new ExternalCalls([
+  { id: 'number', identity: 'n', invoke: (input: { n: number }) => input.n },
+  { id: 'text', identity: 't', invoke: (input: { text: string }) => input.text },
+]);
+const externalNumber: Promise<ModelResult<number>> = external.invoke({ modelId: 'number', input: { n: 1 }, timeoutMs: 100 }, { signal: callSignal });
+// @ts-expect-error input follows bound model ID
+external.invoke({ modelId: 'number', input: { text: 'wrong' }, timeoutMs: 100 }, { signal: callSignal });
+// @ts-expect-error output follows bound model ID
+const externalWrong: Promise<ModelResult<number>> = external.invoke({ modelId: 'text', input: { text: 'ok' }, timeoutMs: 100 }, { signal: callSignal });
+void byIdValue; void byIdWrong; void externalNumber; void externalWrong;
+
+const registered = new AgentCoreEngine<string>().bindWorkflow(appWorkflow, { value: 'done' });
+void registered.fork({ at: registered.checkpoint({ value: 'done' }), resume: app => ({ app }) }).run({});
+const constructorBound = new AgentCoreEngine({ workflow: appWorkflow, app: { value: 'done' } });
+const constructorResult: Promise<string> = constructorBound.run({});
+void constructorResult;
+// @ts-expect-error app is required by the workflow
+new AgentCoreEngine({ workflow: appWorkflow });
+
+defineWorkflow<{ value?: string }, string>({
+  id: 'typed-workflow-transport', nodes: [{
+    id: 'model', description: 'Typed transport',
+    async run(_, { model }) {
+      const result: ModelResult<{ text: string }> = await model.invoke({ input: 'hello', transport: typedTransport });
+      return { value: result.value.text };
+    },
+    routes: [{ complete: state => state.value! }],
+  }],
+});
+
+const externalInteractionReceiver = {
+  commands: { manifest: () => [{ id: 'reply' as const }] },
+  receive(value: { text: string }) { return { id: 'reply' as const, result: value.text }; },
+};
+class ReplyHandlers {
+  #prefix = 'reply:';
+  reply(value: string, context: { suffix: string }) { return this.#prefix + value + context.suffix; }
+}
+const externalInteraction = Interaction.bind(externalInteractionReceiver, new ReplyHandlers());
+const externalReply: string = externalInteraction.dispatch({ text: 'hello' }, { suffix: '!' });
+void externalReply;
+
+// Required workflow dependencies remain required; generic wrappers can pass them directly.
+// @ts-expect-error app cannot be omitted for a workflow that needs dependencies
+new AgentCoreEngine<string>().bindWorkflow(appWorkflow);
+function bindGenericWorkflow<State, App>(workflow: import('@jangts/agent-core').AgentWorkflow<State, string, App>, app: App) {
+  return new AgentCoreEngine<string>().bindWorkflow(workflow, app);
+}
+void bindGenericWorkflow;
+
+import { TextSearch } from '@jangts/agent-core/kits/search';
+import { TextBlocks, splitTextBlocks } from '@jangts/agent-core/kits/text-blocks';
+const textBlocks = splitTextBlocks('one\ntwo', { targetChars: 4 });
+const firstBlock = textBlocks[0];
+const blockText: string = firstBlock.text;
+const blockNumber: number = TextBlocks.split('one', { targetChars: 3 })[0].number;
+// @ts-expect-error splitter options require a target size
+splitTextBlocks('one', {});
+void blockText;
+void blockNumber;
+import { VectorSearch } from '@jangts/agent-core/kits/vector-search';
+interface SearchDocument { id: string; text: string; scope: string }
+const lexicalIndex = new TextSearch<SearchDocument>({ indexRevision: 'current', fields: ['text'], storedFields: ['scope'] });
+lexicalIndex.search({ query: 'word', limit: 3, filter: value => value.scope === 'public' });
+// @ts-expect-error old positional search is not a second API
+lexicalIndex.search('word', { limit: 3, filter: () => true });
+const vectorIndex = new VectorSearch<SearchDocument>({ identity: 'model', dimensions: 2 });
+vectorIndex.upsert({ document: { id: 'one', text: 'word', scope: 'public' }, vector: [1, 0] });
+vectorIndex.search({ vector: [1, 0], limit: 3, filter: value => value.scope === 'public' });
+// @ts-expect-error vector upsert uses a named request
+vectorIndex.upsert({ id: 'one', text: 'word', scope: 'public' }, [1, 0]);
+class ExtraModelBinding {
+  readonly id = 'extra' as const;
+  readonly identity = 'local';
+  invoke(input: number) { return input * 2; }
+  health() { return 'ready'; }
+}
+const extraModels = new ExternalCalls([new ExtraModelBinding()]);
+const extraOutput: Promise<ModelResult<number>> = extraModels.invoke({ modelId: 'extra', input: 3, timeoutMs: 1000 }, { signal: new AbortController().signal });
+// @ts-expect-error registered queries expose the binding contract, not unregistered instance helpers
+extraModels.require('extra').health();
+void extraOutput;
+
+const coreDefinedTool: import('@jangts/agent-core/types').ToolDefinition<number, number, { allowed: boolean }> = inferredTool;
+void coreDefinedTool;
+// @ts-expect-error logging uses execution.diagnostics, not an inert trace field
+new ModelRunner({ provider: appProvider, trace: { enabled: true } });
+// @ts-expect-error SchemaAdapter is the shared contract
+let removedSchemaAlias: Support.InputSchema<number>;
+// @ts-expect-error provider integrations implement the current ChatProvider contract
+Support.fromLegacyProvider({ stream() {} });
+// @ts-expect-error obsolete provider protocol is not a public contract
+let removedProviderType: import('@jangts/agent-core').LegacyChatProvider;
+
+// Prepared snapshots preserve transport output inference through the same invoke API.
+const preparedTyped = byIdRunner.prepare({ transport: 'typed' });
+const preparedValue: Promise<ModelResult<{ text: string }>> = byIdRunner.invoke({ input: [], prepared: preparedTyped });
+// @ts-expect-error a prepared transport does not change its validated output type
+const preparedWrong: Promise<ModelResult<number>> = byIdRunner.invoke({ input: [], prepared: preparedTyped });
+const preparedMeasurement: import('@jangts/agent-core/types').ModelInputMeasurement = preparedTyped.measure([]);
+void preparedValue; void preparedWrong; void preparedMeasurement;
+defineWorkflow<{ value?: string }, string>({ id: 'prepared-in-node', nodes: [{ id: 'answer', description: 'Prepare then invoke',
+  async run(_, { model, report }) {
+    const prepared = model.prepare({ transport: typedTransport });
+    const result: ModelResult<{ text: string }> = await model.invoke({ input: [], prepared });
+    report({ payload: { status: 'parsed' } }); return { value: result.value.text };
+  }, routes: [{ complete: state => state.value! }],
+}] });
+class BoundRequestModel {
+  #runner = new ModelRunner({ provider: appProvider });
+  readonly invoke = this.#runner.invoke.bind(this.#runner);
+  readonly prepare = this.#runner.prepare.bind(this.#runner);
+  get execution() { return this.#runner.execution; }
+  get remainingCalls() { return this.#runner.remainingCalls; }
+  get callCount() { return this.#runner.callCount; }
+  get totalCallCount() { return this.#runner.totalCallCount; }
+}
+const requestPort: import('@jangts/agent-core/types').AgentModelRuntime = new BoundRequestModel();
+new AgentCoreEngine().bindModelRuntime(requestPort);
+// @ts-expect-error budget counters are required by the request runtime contract
+new AgentCoreEngine().bindModelRuntime({ invoke: requestPort.invoke, prepare: requestPort.prepare, execution: requestPort.execution });
+
+// Core and Support share one tool contract, including literal IDs.
+const sharedTool: import('@jangts/agent-core/types').ToolDefinition<number, number, { allowed: boolean }, 'typed-tool'> = {
+  id: 'typed-tool', kind: 'read', description: 'Typed tool',
+  inputSchema: { jsonSchema: {}, parse: value => Number(value) },
+  authorize() {}, execute: value => value + 1, parseOutput: value => Number(value),
+};
+const supportTool: import('@jangts/agent-core/support').ToolDefinition<number, number, { allowed: boolean }, 'typed-tool'> = sharedTool;
+const literalToolId: 'typed-tool' = Support.defineTool(sharedTool).id;
+void supportTool; void literalToolId;
+const configuredTools = { async invoke() { return {} as ToolResult<unknown>; } };
+void new AgentCoreEngine({ tools: configuredTools });
+const childSettings: import('@jangts/agent-core/types').ModelChildOptions = {
+  id: 'child', maxCalls: 1, reserveCalls: 1, timeoutMs: 1000,
+};
+void childSettings;
+// @ts-expect-error ToolDefinition is the single structural tool contract
+import type { DefinedTool } from '@jangts/agent-core/support';
+// @ts-expect-error transport parameters use ModelTransportDefinition
+import type { ModelTransportInput } from '@jangts/agent-core/types';
+// @ts-expect-error observation and logging share CoreEvent
+import type { CoreDiagnosticEvent } from '@jangts/agent-core/types';
+
+const strategyText = Support.createTextTransport({ id: 'strategy-text' });
+const strategyDefinition = Support.createModelStrategy({
+  model: { provider: { async *stream() { yield 'ready'; } }, transports: [strategyText] },
+  budget: 'small', maxCalls: 0,
+});
+const strategyResult: Promise<ModelResult<string>> = new ModelRunner(strategyDefinition).invoke({ input: 'hi', transport: 'strategy-text' });
+void strategyResult;
+const imagePlan: import('@jangts/agent-core/types').ContextPlan = context.plan({ input: { message: 'hello' },
+  additionalMessages: [{ role: 'user', content: 'attachment', images: [{ url: 'fixture' }] }], mutableFragmentIds: [],
+});
+void imagePlan;
+
+void new AgentCoreEngine({ model: strategyDefinition });
+const requestStrategy = Support.createModelStrategy({ model: { provider: appProvider, execution: { signal: callSignal } } });
+void new ModelRunner(requestStrategy);
+// @ts-expect-error a request-bound strategy must not bypass Engine-owned execution
+void new AgentCoreEngine({ model: requestStrategy });
+
+const sessionPolicy: import('@jangts/agent-core/support').CompletionPolicy = Support.completionPolicyCatalog.session;
+const toolThread: import('@jangts/agent-core/support').ProviderMessage[] = [
+  { role: 'user', content: 'check' },
+  { role: 'assistant', content: '', toolCalls: [{ id: 'call-1', name: 'lookup', arguments: '{}' }] },
+  { role: 'tool', content: '{"ok":true}', toolCallId: 'call-1' },
+];
+const toolProvider = new Support.CompatibleModelProvider({
+  config: { baseUrl: 'https://model.invalid', apiKey: 'fixture-secret', model: 'fixture-model' },
+  ports: { completionPolicy: sessionPolicy },
+});
+void toolProvider.stream(toolThread, { signal: callSignal });
+const completedCalls: readonly import('@jangts/agent-core/support').AggregatedToolCall[] = Support.createToolCallCollector().complete();
+void completedCalls;
+// @ts-expect-error a tool result requires the tool role
+const misplacedToolResult: import('@jangts/agent-core/support').ProviderMessage = { role: 'user', content: 'x', toolCallId: 'call-1' };
+void misplacedToolResult;
+
+const coreToolThread: import('@jangts/agent-core/structs').ModelMessage[] = [
+  { role: 'user', content: 'check' },
+  { role: 'assistant', content: '', toolCalls: [{ id: 'call-1', name: 'double', arguments: '{}' }] },
+  { role: 'tool', content: '{"ok":true}', toolCallId: 'call-1' },
+];
+void coreToolThread;
+const sessionTransport = Support.createModelTransport({ response: 'session',
+  id: 'session',
+  tools: declarativeTools.tools,
+});
+const sessionResult: import('@jangts/agent-core/support/model').DecodedSessionResult = { text: '', calls: [] };
+void sessionResult;
+const sessionCall: Promise<ModelResult<import('@jangts/agent-core/support/model').DecodedSessionResult>> = new ModelRunner({
+  provider: appProvider,
+  transports: [sessionTransport],
+}).invoke({ input: coreToolThread, transport: sessionTransport });
+void sessionCall;
+
+
+// Cache ownership is visible on both workflow and low-level loop contexts.
+{
+  const cacheEngine = new AgentCoreEngine<string>({ cache: { maxEntries: 10, ttlMs: 1000 } });
+  cacheEngine.run(async (_round, context) => {
+    context.cache.set('key', undefined);
+    const present: boolean = context.cache.has('key');
+    const other: unknown = context.cache.get('key', { nodeId: 'other' });
+    // @ts-expect-error writes cannot target another node
+    context.cache.set('key', 1, { nodeId: 'other' });
+    // @ts-expect-error only Agent cache supports persistence
+    context.cache.get('key', { persistence: true });
+    if (context.agentCache) {
+      const exists: boolean = await context.agentCache.has('key');
+      await context.agentCache.set('key', other, { persistence: true });
+      // @ts-expect-error cross-partition writes are forbidden
+      await context.agentCache.set('key', 1, { nodeId: 'other' });
+    }
+    return { type: 'complete', value: String(present) };
+  });
+}
+
+// Workflow graph and chain read models are available from every public type entry.
+import type { WorkflowGraph, WorkflowChain, WorkflowChainSource } from "@jangts/agent-core";
+import type { WorkflowGraph as EngineGraph } from "@jangts/agent-core/engine";
+declare const viewWorkflow: import("@jangts/agent-core").AgentWorkflow<{}, string>;
+declare const viewSource: WorkflowChainSource;
+const topology: WorkflowGraph = viewWorkflow.toGraph();
+const engineTopology: EngineGraph = topology;
+const history: Promise<WorkflowChain> = viewWorkflow.toChain("run-id", viewSource);
+void engineTopology; void history;
+
+// @ts-expect-error Executable declarations cannot configure a custom model resolver.
+const invalidExecutableMapping: import('@jangts/agent-core/types').ToolDefinition = { ...inferredTool, resolve: () => ({ toolId: 'other', input: {} }) };
+void invalidExecutableMapping;

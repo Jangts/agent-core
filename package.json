@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @jangts/agent-core --",
+    "build:dev": "npm run build:dev --workspace @jangts/agent-core --",
+    "test": "npm test --workspace @jangts/agent-core --",
+    "docs:api": "node packages/agent-core/scripts/api-reference.mjs",
+    "check:concepts": "npm run check:concepts --workspace @jangts/agent-core --",
+    "test:agent-audit": "npm run test:agent-audit --workspace @jangts/agent-core --",
+    "build:packages": "npm run build",
+    "docs:agent-core": "npm run dev --workspace @jangts/agent-core-docs --",
+    "build:docs:agent-core": "npm run build --workspace @jangts/agent-core-docs --",
+    "preview:docs:agent-core": "npm run preview --workspace @jangts/agent-core-docs --",
+    "check:docs:agent-core": "npm run check --workspace @jangts/agent-core-docs --",
+    "test:recipes": "node --test development/scripts/docs/recipes.test.mjs"
+  }
+}

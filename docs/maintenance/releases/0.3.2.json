@@ -1,0 +1,55 @@
+{
+  "name": "@jangts/agent-core",
+  "version": "0.3.2",
+  "filename": "jangts-agent-core-0.3.2.tgz",
+  "size": 1140648,
+  "unpackedSize": 3672677,
+  "shasum": "d46fd66256f3cbad435061287266c45c4affc2dc",
+  "integrity": "sha512-ZCwr2X784LIsq5r7Di9VkRZukFyXocz5QJzfUhU7/jTrCMNh0GTp+YzF9swNyp91OVPvWSywGWDHc6tIcAnUKw==",
+  "sha256": "c493c5fde11c1a4b69a1bafc9dfdc55eaa0114bf585064ec2e8f3b60844e3453",
+  "unchangedRuntime": {
+    "baseVersion": "0.3.1",
+    "checkedCompiledFiles": 631,
+    "changedOrMissing": []
+  },
+  "validation": {
+    "readme": "7 unique bilingual samples checked offline, including mocked model/tool selection and strict decorator types",
+    "languageOrder": "English first, Chinese second",
+    "exportTargets": "passed",
+    "packageWhitelist": "passed",
+    "runtimeTests": "0.3.1 SDK 800 passed; no runtime changes, not repeated"
+  },
+  "publication": {
+    "status": "unpublished",
+    "registry": "https://registry.npmjs.org",
+    "tag": "latest",
+    "publishReceipt": "Official temporary web session: npm publish exited 0; + @jangts/agent-core@0.3.2.",
+    "registryVerified": {
+      "version": "0.3.2",
+      "dist.integrity": "sha512-ZCwr2X784LIsq5r7Di9VkRZukFyXocz5QJzfUhU7/jTrCMNh0GTp+YzF9swNyp91OVPvWSywGWDHc6tIcAnUKw==",
+      "dist.shasum": "d46fd66256f3cbad435061287266c45c4affc2dc",
+      "dist-tags": {
+        "latest": "0.3.2"
+      },
+      "versions": ["0.0.0-stage", "0.1.0", "0.1.1", "0.2.0", "0.2.1", "0.2.5", "0.3.2"]
+    },
+    "readmeVerified": {
+      "version": "0.3.2",
+      "readmeMatches": true,
+      "readmeSha256": "6fd6c422a7c96c2fcb1ec0c25fe0e0ef05d9d49193fa4f5881691e95b0fd24a2",
+      "englishFirst": true
+    },
+    "temporarySession": "logged out and removed"
+  },
+  "withdrawal": {
+    "requested": true,
+    "status": "succeeded",
+    "replacementVersion": "0.3.5",
+    "unpublishReceipt": "npm unpublish @jangts/agent-core@0.3.2 exited 0; - @jangts/agent-core@0.3.2",
+    "registryVerifiedAfterWithdrawal": {
+      "versions": ["0.0.0-stage", "0.1.0", "0.1.1", "0.2.0", "0.2.1", "0.2.5", "0.3.5"],
+      "latest": "0.3.5"
+    },
+    "temporarySession": "logged out and removed"
+  }
+}

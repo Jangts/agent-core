@@ -1,0 +1,209 @@
+{
+  "status": "collection-draft",
+  "runtime": "nodejs",
+  "programs": [],
+  "sourceIndex": "sources.md",
+  "contractProposal": "contract-proposal.md",
+  "skills": [
+    {
+      "id": "evidence-answering",
+      "title": "取证问答",
+      "entry": "skills/evidence-answering/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P0",
+      "requiredHandles": ["read"],
+      "optionalHandles": ["discover", "check"],
+      "sources": ["cafe-evidence", "banker-materials", "console-guides", "external-workflows"]
+    },
+    {
+      "id": "structured-extraction",
+      "title": "结构化提取",
+      "entry": "skills/structured-extraction/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P0",
+      "requiredHandles": ["read"],
+      "optionalHandles": ["check"],
+      "sources": ["banker-materials", "console-attachments", "external-schema"]
+    },
+    {
+      "id": "tabular-analysis",
+      "title": "表格分析",
+      "entry": "skills/tabular-analysis/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P0",
+      "requiredHandles": ["describe", "query"],
+      "optionalHandles": ["read", "check"],
+      "sources": ["banker-tables", "console-comparison"]
+    },
+    {
+      "id": "delivery-review",
+      "title": "交付复核",
+      "entry": "skills/delivery-review/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P0",
+      "requiredHandles": ["read"],
+      "optionalHandles": ["query", "check"],
+      "sources": ["banker-review", "cafe-evidence", "external-workflows", "external-authoring"]
+    },
+    {
+      "id": "research-synthesis",
+      "title": "资料综合",
+      "entry": "skills/research-synthesis/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": ["read"],
+      "optionalHandles": ["discover", "check"],
+      "sources": ["banker-materials", "cafe-work", "external-research"]
+    },
+    {
+      "id": "document-authoring",
+      "title": "文稿编写",
+      "entry": "skills/document-authoring/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": [],
+      "optionalHandles": ["read", "check", "generateArtifact"],
+      "sources": ["cafe-work", "banker-materials", "external-authoring"]
+    },
+    {
+      "id": "option-comparison",
+      "title": "选项对比",
+      "entry": "skills/option-comparison/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": ["read"],
+      "optionalHandles": ["discover", "query", "check"],
+      "sources": ["banker-comparison", "console-comparison", "external-research"]
+    },
+    {
+      "id": "change-review",
+      "title": "变更核对",
+      "entry": "skills/change-review/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": ["read"],
+      "optionalHandles": ["compare", "check"],
+      "sources": ["banker-comparison", "console-comparison", "console-drafts"]
+    },
+    {
+      "id": "data-quality-review",
+      "title": "数据质量检查",
+      "entry": "skills/data-quality-review/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": ["scan", "check"],
+      "optionalHandles": ["describe"],
+      "sources": ["console-quality", "banker-tables"]
+    },
+    {
+      "id": "meeting-assistance",
+      "title": "会议整理",
+      "entry": "skills/meeting-assistance/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": [],
+      "optionalHandles": ["read", "check", "generateArtifact"],
+      "sources": ["banker-continuity", "external-meetings"]
+    },
+    {
+      "id": "guided-operation",
+      "title": "操作指引",
+      "entry": "skills/guided-operation/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P2",
+      "requiredHandles": ["readGuide"],
+      "optionalHandles": ["discover", "readContext", "prepare"],
+      "sources": ["cafe-actions", "console-guides", "console-drafts"]
+    },
+    {
+      "id": "change-drafting",
+      "title": "修改草稿",
+      "entry": "skills/change-drafting/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P2",
+      "requiredHandles": ["describeTarget", "readContext", "check", "prepare"],
+      "optionalHandles": [],
+      "sources": ["cafe-actions", "console-drafts"]
+    },
+    {
+      "id": "task-handover",
+      "title": "任务交接",
+      "entry": "skills/task-handover/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P2",
+      "requiredHandles": ["read"],
+      "optionalHandles": ["discover", "readHistory", "check", "generateArtifact"],
+      "sources": ["banker-continuity", "console-history"]
+    },
+    {
+      "id": "task-planning",
+      "title": "任务拆解与规划",
+      "entry": "skills/task-planning/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": [],
+      "optionalHandles": ["read"],
+      "sources": ["banker-continuity", "external-planning"]
+    },
+    {
+      "id": "record-reconciliation",
+      "title": "跨来源记录匹配",
+      "entry": "skills/record-reconciliation/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": [],
+      "optionalHandles": ["findCandidates"],
+      "sources": ["console-record-matching", "external-reconciliation"]
+    },
+    {
+      "id": "feedback-triage",
+      "title": "用户反馈归类",
+      "entry": "skills/feedback-triage/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": [],
+      "optionalHandles": ["findRelated"],
+      "sources": ["banker-feedback", "external-feedback"]
+    },
+    {
+      "id": "content-localization",
+      "title": "按术语表翻译",
+      "entry": "skills/content-localization/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P1",
+      "requiredHandles": [],
+      "optionalHandles": ["readGlossary", "checkFormat"],
+      "sources": ["external-terminology", "external-message-format"]
+    },
+    {
+      "id": "worklist-triage",
+      "title": "待办盘点与排序",
+      "entry": "skills/worklist-triage/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P2",
+      "requiredHandles": ["scan"],
+      "optionalHandles": ["read"],
+      "sources": ["banker-worklist", "console-dashboard-checks"]
+    },
+    {
+      "id": "asset-selection",
+      "title": "已有素材选用",
+      "entry": "skills/asset-selection/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P2",
+      "requiredHandles": ["discover"],
+      "optionalHandles": ["inspect"],
+      "sources": ["banker-pictures", "console-media", "cafe-selected-source"]
+    },
+    {
+      "id": "text-redaction",
+      "title": "文本脱敏",
+      "entry": "skills/text-redaction/SKILL.md",
+      "kind": "text-workflow",
+      "priority": "P2",
+      "requiredHandles": [],
+      "optionalHandles": ["detect"],
+      "sources": ["jangts-redaction", "banker-feedback", "external-text-redaction"]
+    }
+  ]
+}
